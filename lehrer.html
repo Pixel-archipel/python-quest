@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Python Quest: Lehrkraft</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="index.html" style="text-decoration:none;color:inherit"><span class="logo">&gt;_</span>Python Quest</a>
+    <div class="status"><span class="rank">Ansicht für die Lehrkraft</span></div>
+  </header>
+  <main class="teacher">
+    <h1>Fortschrittscode prüfen</h1>
+    <p class="muted">Name und Code eingeben. Der Code gilt nur zusammen mit dem Namen, den die Schülerin oder der Schüler in Python Quest eingetragen hat. Nichts davon verlässt diesen Rechner.</p>
+    <form id="f" class="row">
+      <input id="n" placeholder="Name" autocomplete="off">
+      <input id="c" placeholder="Fortschrittscode" autocomplete="off">
+      <button class="btn primary">Prüfen</button>
+    </form>
+    <div id="out"></div>
+  </main>
+  <script src="js/levels.js"></script>
+  <script src="js/core.js"></script>
+  <script>
+    const STUFE = ["offen", "Bausteine", "Lücken", "Frei"];
+    document.getElementById("f").addEventListener("submit", e => {
+      e.preventDefault();
+      const out = document.getElementById("out");
+      const stars = PQ.readCode(document.getElementById("c").value, document.getElementById("n").value);
+      if (!stars) {
+        out.innerHTML = `<div class="fb retry"><p>Code und Name passen nicht zusammen. Entweder ein Tippfehler oder der Code gehört zu einem anderen Namen.</p></div>`;
+        return;
+      }
+      const levels = PQ.allLevels();
+      const done = levels.filter(l => stars[l.id]).length;
+      let rows = "";
+      levels.forEach((l, i) => {
+        const s = stars[l.id] || 0;
+        rows += `<tr><td>${i + 1}</td><td>${l.boss ? "Bosslevel: " : ""}${l.title}</td><td>${STUFE[s]}</td><td>${"★".repeat(s)}</td></tr>`;
+      });
+      out.innerHTML = `<div class="fb info"><p><b>Code gültig.</b> ${done} von ${levels.length} Leveln gelöst, ${PQ.totalStars(stars)} von ${PQ.maxStars()} Sternen.</p></div>
+<table><thead><tr><th>Nr.</th><th>Level</th><th>Höchste gelöste Stufe</th><th>Sterne</th></tr></thead><tbody>${rows}</tbody></table>`;
+    });
+  </script>
+</body>
+</html>
