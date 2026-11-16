@@ -100,7 +100,7 @@ const Engine = (() => {
       const m = original.match(/name '([^']+)'/);
       const name = m ? m[1] : "";
       title = "Python kennt dieses Wort nicht";
-      if (name && name !== name.toLowerCase() && ["print", "input", "int", "str", "range"].includes(name.toLowerCase())) {
+      if (name && name !== name.toLowerCase() && ["print", "input", "int", "str", "range", "len"].includes(name.toLowerCase())) {
         text = `Python unterscheidet große und kleine Buchstaben. Schreibe <code>${esc(name.toLowerCase())}</code> komplett klein.`;
       } else {
         text = `Das Wort <code>${esc(name)}</code> ist Python unbekannt. Soll es ein Text sein, dann fehlen die Anführungszeichen. Soll es eine Variable sein, dann prüfe die Schreibweise und ob du sie weiter oben angelegt hast.`;
@@ -111,6 +111,12 @@ const Engine = (() => {
     } else if (type === "ValueError") {
       title = "Das lässt sich nicht in eine Zahl umwandeln";
       text = "<code>int()</code> hat einen Text bekommen, der keine ganze Zahl ist. Prüfe, was eingegeben wurde.";
+    } else if (type === "IndexError") {
+      title = "Diesen Platz gibt es in der Liste nicht";
+      text = "Die Nummer in den eckigen Klammern ist zu groß. Python zählt ab 0. Eine Liste mit drei Einträgen hat also die Plätze 0, 1 und 2.";
+    } else if (type === "AttributeError") {
+      title = "Diesen Befehl gibt es hier nicht";
+      text = "Hinter dem Punkt steht ein Befehl, den Python an dieser Stelle nicht kennt. Prüfe die Schreibweise, zum Beispiel bei <code>append</code>.";
     } else if (type === "ZeroDivisionError") {
       title = "Durch null teilen geht nicht";
       text = "In dieser Zeile wird durch null geteilt. Prüfe die Werte deiner Variablen.";

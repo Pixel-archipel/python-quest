@@ -979,7 +979,334 @@ print("Richtig! Anzahl der Versuche:", {{9}})`,
       }
     ]
   },
-  { id: "w4", title: "Welt 4: Listen", sub: "Viele Werte in einer Variable", levels: [] },
+  {
+    id: "w4",
+    title: "Welt 4: Listen",
+    sub: "Viele Werte in einer Variable",
+    levels: [
+      {
+        id: "w4l1",
+        title: "Die Liste",
+        primm: {
+          predict: {
+            options: [`Schach\nUno`, `Schach\nPoker`, `Uno\nPoker`],
+            correct: 1,
+            explain: `Python zählt die Plätze einer Liste ab 0. Der erste Eintrag hat also die Nummer 0, der dritte die Nummer 2.`
+          },
+          investigate: {
+            task: `<p>Ändere die letzte Zeile zu <code>print(spiele[3])</code> und führe das Programm aus.</p>`,
+            question: `Was passiert?`,
+            options: [`Das Programm gibt Poker aus.`, `Das Programm gibt eine leere Zeile aus.`, `Python meldet einen Fehler, weil es diesen Platz nicht gibt.`],
+            correct: 2,
+            explain: `Die Liste hat drei Einträge mit den Nummern 0, 1 und 2. Die Nummer 3 gibt es nicht. Dieser Fehler passiert sehr oft, weil man beim Zählen gern mit 1 anfängt.`
+          }
+        },
+        intro: `<p>Eine Liste speichert viele Werte in einer einzigen Variable. Sie steht in eckigen Klammern, und die Einträge werden durch Kommas getrennt.</p>
+<p>Einen einzelnen Eintrag holst du über seine Nummer in eckigen Klammern. Achtung: Python zählt ab 0.</p>`,
+        example: `spiele = ["Schach", "Uno", "Poker"]
+print(spiele[0])
+print(spiele[2])`,
+        task: `<p>Lege die Liste <code>tage</code> mit den fünf Schultagen von Montag bis Freitag an.</p>
+<p>Gib dann den ersten und den letzten Tag aus der Liste aus, so wie im Beispiel unten.</p>`,
+        sample: `Erster Tag: Montag
+Letzter Tag: Freitag`,
+        tests: [{ inputs: [], expect: ["Erster Tag: Montag", "Letzter Tag: Freitag"] }],
+        must: [
+          { re: /tage\s*\[\s*0\s*\]/, msg: `Die Ausgabe stimmt. Hole den ersten Tag aber mit <code>tage[0]</code> aus der Liste.` },
+          { re: /tage\s*\[\s*(4|-1)\s*\]/, msg: `Die Ausgabe stimmt. Hole den letzten Tag aber über seine Nummer aus der Liste.` }
+        ],
+        hints: [
+          `Die Liste beginnt mit <code>tage = ["Montag", "Dienstag",</code> und geht so weiter bis Freitag.`,
+          `Fünf Einträge haben die Nummern 0 bis 4.`,
+          `Die letzte Zeile lautet <code>print("Letzter Tag:", tage[4])</code>`
+        ],
+        parsons: {
+          lines: [`tage = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag"]`, `print("Erster Tag:", tage[0])`, `print("Letzter Tag:", tage[4])`],
+          distractors: [`print("Letzter Tag:", tage[5])`]
+        },
+        gaps: `tage = {{1}}"Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag"{{1}}
+print("Erster Tag:", tage[{{2}}])
+print("Letzter Tag:", {{8}})`,
+        starter: `tage = [
+`
+      },
+      {
+        id: "w4l2",
+        title: "Listen wachsen",
+        primm: {
+          predict: {
+            options: [`2\nCem`, `3\nBea`, `3\nCem`],
+            correct: 2,
+            explain: `<code>append</code> hängt Cem hinten an. Danach hat die Liste drei Einträge, und Cem steht auf Platz 2.`
+          },
+          investigate: {
+            task: `<p>Füge direkt unter der zweiten Zeile eine neue Zeile ein: <code>team.append("Dana")</code>. Führe das Programm dann aus.</p>`,
+            question: `Welche Zahl steht jetzt in der ersten Zeile der Ausgabe?`,
+            options: [`2`, `3`, `4`],
+            correct: 2,
+            explain: `Jedes <code>append</code> verlängert die Liste um einen Eintrag. <code>len()</code> zählt immer den aktuellen Stand.`
+          }
+        },
+        intro: `<p>Listen können wachsen. Mit <code>.append()</code> hängst du einen Eintrag hinten an. Der Punkt gehört dazu: erst der Name der Liste, dann der Punkt, dann der Befehl.</p>
+<p>Mit <code>len()</code> zählst du, wie viele Einträge eine Liste hat.</p>`,
+        example: `team = ["Ali", "Bea"]
+team.append("Cem")
+print(len(team))
+print(team[2])`,
+        task: `<p>Auf der Einkaufsliste stehen schon Brot und Milch. Dein Programm fragt, was noch fehlt, und hängt die Antwort an die Liste an.</p>
+<p>Danach gibt es die Anzahl der Einträge und den neuen Eintrag aus.</p>`,
+        sample: `Was fehlt noch? <b>Käse</b>
+Anzahl: 3
+Neu auf der Liste: Käse`,
+        tests: [
+          { inputs: ["Käse"], expect: ["Anzahl: 3", "Neu auf der Liste: Käse"] },
+          { inputs: ["Eier"], expect: ["Anzahl: 3", "Neu auf der Liste: Eier"] }
+        ],
+        must: [
+          { re: /\.append\s*\(/, msg: `Die Ausgabe stimmt. Hänge die Antwort aber mit <code>.append()</code> an die Liste an.` },
+          { re: /\blen\s*\(/, msg: `Die Ausgabe stimmt. Lass die Anzahl aber von <code>len()</code> zählen.` }
+        ],
+        hints: [
+          `Speichere die Antwort zuerst in einer Variable und hänge diese dann an die Liste an.`,
+          `Das Anhängen sieht so aus: <code>einkauf.append(neu)</code>`,
+          `Der neue Eintrag steht auf Platz 2. Die Ausgabe lautet <code>print("Neu auf der Liste:", einkauf[2])</code>`
+        ],
+        parsons: {
+          lines: [`einkauf = ["Brot", "Milch"]`, `neu = input("Was fehlt noch? ")`, `einkauf.append(neu)`, `print("Anzahl:", len(einkauf))`, `print("Neu auf der Liste:", einkauf[2])`],
+          distractors: [`einkauf.append("neu")`]
+        },
+        gaps: `einkauf = ["Brot", "Milch"]
+neu = input("Was fehlt noch? ")
+einkauf.{{6}}(neu)
+print("Anzahl:", {{3}}(einkauf))
+print("Neu auf der Liste:", einkauf[{{2}}])`,
+        starter: `einkauf = ["Brot", "Milch"]
+`
+      },
+      {
+        id: "w4l3",
+        title: "Jeden Eintrag besuchen",
+        primm: {
+          predict: {
+            options: [`Hallo Ali`, `Hallo name\nHallo name\nHallo name`, `Hallo Ali\nHallo Bea\nHallo Cem`],
+            correct: 2,
+            explain: `Die Schleife geht die Liste von vorn nach hinten durch. Bei jedem Durchlauf steckt der nächste Eintrag in der Variable <code>name</code>.`
+          },
+          investigate: {
+            task: `<p>Ergänze in der ersten Zeile einen vierten Namen in der Liste und führe das Programm aus.</p>`,
+            question: `Musstest du die Schleife ändern, damit auch der neue Name begrüßt wird?`,
+            options: [`Ja`, `Nein`],
+            correct: 1,
+            explain: `Die Schleife passt sich der Länge der Liste an. Deshalb passen Listen und Schleifen so gut zusammen: Das Programm bleibt gleich, egal ob die Liste 3 oder 3000 Einträge hat.`
+          }
+        },
+        intro: `<p>Mit einer <code>for</code> Schleife besuchst du jeden Eintrag einer Liste. Statt <code>range()</code> steht hinter <code>in</code> einfach der Name der Liste.</p>
+<p>Den Namen der Variable vor <code>in</code> darfst du frei wählen.</p>`,
+        example: `freunde = ["Ali", "Bea", "Cem"]
+for name in freunde:
+    print("Hallo", name)`,
+        task: `<p>Die Liste <code>lieder</code> enthält die Titel Sonne, Regen und Wind. Dein Programm kündigt jedes Lied mit <code>Jetzt läuft:</code> an.</p>
+<p>Zum Schluss gibt es <code>Ende der Playlist.</code> aus.</p>`,
+        sample: `Jetzt läuft: Sonne
+Jetzt läuft: Regen
+Jetzt läuft: Wind
+Ende der Playlist.`,
+        tests: [{ inputs: [], expect: ["Jetzt läuft: Sonne", "Jetzt läuft: Regen", "Jetzt läuft: Wind", "Ende der Playlist."] }],
+        mustNot: [{ re: /Jetzt läuft[\s\S]*Jetzt läuft/, msg: `Die Ausgabe stimmt. Schreibe <code>Jetzt läuft:</code> aber nur einmal in deinen Code. Das Wiederholen übernimmt die Schleife.` }],
+        must: [{ re: /\bfor\b/, msg: `Die Ausgabe stimmt. Löse die Aufgabe aber mit einer <code>for</code> Schleife.` }],
+        hints: [
+          `Du brauchst vier Zeilen: die Liste, die Schleife, eine eingerückte Ausgabe und eine Ausgabe ohne Einrückung.`,
+          `Die Schleife lautet <code>for lied in lieder:</code>`,
+          `In der Schleife steht <code>print("Jetzt läuft:", lied)</code>. Achte auf den Unterschied zwischen <code>lied</code> und <code>lieder</code>.`
+        ],
+        parsons: {
+          lines: [`lieder = ["Sonne", "Regen", "Wind"]`, `for lied in lieder:`, `    print("Jetzt läuft:", lied)`, `print("Ende der Playlist.")`],
+          distractors: [`    print("Jetzt läuft:", lieder)`]
+        },
+        gaps: `lieder = ["Sonne", "Regen", "Wind"]
+for {{4}} in {{6}}:
+    print("Jetzt läuft:", {{4}})
+print("Ende der Playlist.")`,
+        starter: `lieder = ["Sonne", "Regen", "Wind"]
+`
+      },
+      {
+        id: "w4l4",
+        title: "Rechnen mit Listen",
+        primm: {
+          predict: {
+            options: [`Gesamt: 3`, `Gesamt: 20`, `Gesamt: 39`],
+            correct: 2,
+            explain: `Die Schleife besucht jede Zahl der Liste und zählt sie zur Summe dazu. Das ist dasselbe Muster wie beim Sparplan in Welt 3.`
+          },
+          investigate: {
+            task: `<p>Ändere die Zeile in der Schleife zu <code>summe = p</code> und führe das Programm aus.</p>`,
+            question: `Was wird ausgegeben?`,
+            options: [`Gesamt: 39`, `Gesamt: 12`, `Gesamt: 20`],
+            correct: 2,
+            explain: `Ohne <code>summe +</code> wird der alte Wert bei jedem Durchlauf überschrieben. Am Ende bleibt nur die letzte Zahl der Liste übrig.`
+          }
+        },
+        intro: `<p>In Listen können auch Zahlen stehen. Mit einer Schleife kannst du sie zusammenzählen.</p>
+<p>Teilst du die Summe durch die Anzahl der Einträge, bekommst du den Durchschnitt.</p>`,
+        example: `punkte = [12, 7, 20]
+summe = 0
+for p in punkte:
+    summe = summe + p
+print("Gesamt:", summe)`,
+        task: `<p>In der Liste <code>noten</code> stehen die Noten 2, 3, 1, 4 und 2. Dein Programm zählt sie mit einer Schleife zusammen und gibt die Summe aus.</p>
+<p>Danach gibt es den Durchschnitt aus. Lass Python dafür die Summe durch die Anzahl der Noten teilen.</p>`,
+        sample: `Summe: 12
+Durchschnitt: 2.4`,
+        tests: [{ inputs: [], expect: ["Summe: 12", "Durchschnitt: 2.4"] }],
+        mustNot: [{ re: /2\.4|\b12\b/, msg: `Die Ausgabe stimmt, aber du hast ein Ergebnis selbst ausgerechnet. Lass Python rechnen. Die Zahlen 12 und 2.4 sollen in deinem Code nicht vorkommen.` }],
+        must: [
+          { re: /\bfor\b/, msg: `Die Ausgabe stimmt. Zähle die Noten aber mit einer <code>for</code> Schleife zusammen.` },
+          { re: /\blen\s*\(/, msg: `Die Ausgabe stimmt. Lass die Anzahl der Noten aber von <code>len()</code> zählen.` }
+        ],
+        hints: [
+          `Die Summe startet vor der Schleife bei 0.`,
+          `In der Schleife steht <code>summe = summe + n</code>, wenn deine Schleifenvariable <code>n</code> heißt.`,
+          `Der Durchschnitt ist <code>summe / len(noten)</code>. Python schreibt Kommazahlen mit einem Punkt.`
+        ],
+        parsons: {
+          lines: [`noten = [2, 3, 1, 4, 2]`, `summe = 0`, `for n in noten:`, `    summe = summe + n`, `print("Summe:", summe)`, `print("Durchschnitt:", summe / len(noten))`],
+          distractors: [`    summe = n`]
+        },
+        gaps: `noten = [2, 3, 1, 4, 2]
+summe = {{2}}
+for n in {{5}}:
+    summe = summe + n
+print("Summe:", summe)
+print("Durchschnitt:", summe / {{3}}(noten))`,
+        starter: `noten = [2, 3, 1, 4, 2]
+`
+      },
+      {
+        id: "w4l5",
+        title: "Ist es dabei?",
+        primm: {
+          predict: {
+            inputs: ["Bea"],
+            options: [`Willkommen!`, `Du stehst nicht auf der Liste.`],
+            correct: 0,
+            explain: `<code>in</code> prüft, ob ein Wert irgendwo in der Liste vorkommt. Das Ergebnis ist eine Bedingung, die du in einem <code>if</code> benutzen kannst.`
+          },
+          investigate: {
+            task: `<p>Führe das Programm aus und tippe <code>bea</code> ein, also klein geschrieben.</p>`,
+            question: `Was wird ausgegeben?`,
+            options: [`Willkommen!`, `Du stehst nicht auf der Liste.`],
+            correct: 1,
+            explain: `Auch <code>in</code> vergleicht ganz genau. Für Python ist <code>bea</code> ein anderer Text als <code>Bea</code>.`
+          }
+        },
+        intro: `<p>Oft will man wissen, ob etwas in einer Liste steht. Dafür gibt es das Wort <code>in</code>. Du kennst es schon aus der Schleife, hier steht es in einer Bedingung.</p>
+<p>So ersparst du dir viele Vergleiche mit <code>or</code>.</p>`,
+        example: `gaeste = ["Ali", "Bea", "Cem"]
+name = input("Wie heißt du? ")
+if name in gaeste:
+    print("Willkommen!")
+else:
+    print("Du stehst nicht auf der Liste.")`,
+        task: `<p>Eine Pizzeria hat die Beläge Salami, Pilze, Paprika und Mais. Sie stehen in der Liste <code>belag</code>.</p>
+<p>Dein Programm fragt nach dem Wunschbelag. Gibt es ihn, antwortet es <code>Kommt sofort.</code> Sonst antwortet es <code>Das haben wir leider nicht.</code></p>`,
+        sample: `Welchen Belag möchtest du? <b>Ananas</b>
+Das haben wir leider nicht.`,
+        tests: [
+          { inputs: ["Ananas"], expect: ["Das haben wir leider nicht."] },
+          { inputs: ["Pilze"], expect: ["Kommt sofort."] },
+          { inputs: ["Mais"], expect: ["Kommt sofort."] }
+        ],
+        must: [{ re: /\bin\s+belag\b/, msg: `Die Ausgabe stimmt. Prüfe aber mit <code>in belag</code>, statt jeden Belag einzeln zu vergleichen.` }],
+        hints: [
+          `Du brauchst die Eingabe und danach ein <code>if</code> mit <code>else</code>.`,
+          `Die Bedingung prüft, ob der Wunsch in der Liste steht.`,
+          `Die Bedingung lautet <code>if wunsch in belag:</code>`
+        ],
+        parsons: {
+          lines: [`belag = ["Salami", "Pilze", "Paprika", "Mais"]`, `wunsch = input("Welchen Belag möchtest du? ")`, `if wunsch in belag:`, `    print("Kommt sofort.")`, `else:`, `    print("Das haben wir leider nicht.")`],
+          distractors: [`if wunsch == belag:`]
+        },
+        gaps: `belag = ["Salami", "Pilze", "Paprika", "Mais"]
+wunsch = input("Welchen Belag möchtest du? ")
+if wunsch {{2}} {{5}}:
+    print("Kommt sofort.")
+{{5}}
+    print("Das haben wir leider nicht.")`,
+        starter: `belag = ["Salami", "Pilze", "Paprika", "Mais"]
+`
+      },
+      {
+        id: "w4l6",
+        title: "Die Wunschliste",
+        boss: true,
+        primm: {
+          predict: {
+            inputs: ["5", "8", "stopp"],
+            options: [`Anzahl: 3`, `Anzahl: 2`, `Anzahl: 0`],
+            correct: 1,
+            explain: `Die Liste startet leer. Bei jedem Durchlauf kommt eine Zahl dazu. Das Wort stopp beendet die Schleife und wird selbst nicht angehängt.`
+          },
+          investigate: {
+            task: `<p>Führe das Programm aus und tippe gleich beim ersten Mal <code>stopp</code> ein.</p>`,
+            question: `Was wird ausgegeben?`,
+            options: [`Anzahl: 0`, `Python meldet einen Fehler, weil die Liste leer ist.`],
+            correct: 0,
+            explain: `Eine leere Liste ist erlaubt. Sie wird mit <code>[]</code> angelegt und hat die Länge 0. So beginnt fast jedes Programm, das Daten sammelt.`
+          }
+        },
+        intro: `<p>Im Bosslevel kommt alles zusammen: eine leere Liste, eine <code>while</code> Schleife zum Sammeln und eine <code>for</code> Schleife zum Ausgeben.</p>
+<p>Neu ist nur die leere Liste. Sie wird mit zwei eckigen Klammern ohne Inhalt angelegt.</p>`,
+        example: `zahlen = []
+eingabe = input("Zahl oder stopp: ")
+while eingabe != "stopp":
+    zahlen.append(int(eingabe))
+    eingabe = input("Zahl oder stopp: ")
+print("Anzahl:", len(zahlen))`,
+        task: `<p>Dein Programm sammelt Wünsche. Es fragt so lange nach, bis <code>fertig</code> eingegeben wird. Das Wort fertig selbst ist kein Wunsch.</p>
+<p>Danach gibt es die Anzahl der Wünsche aus und darunter jeden Wunsch in einer eigenen Zeile mit einem Strich davor, so wie im Beispiel unten.</p>`,
+        sample: `Was wünschst du dir? <b>Fahrrad</b>
+Was wünschst du dir? <b>Buch</b>
+Was wünschst du dir? <b>fertig</b>
+Anzahl der Wünsche: 2
+- Fahrrad
+- Buch`,
+        tests: [
+          { inputs: ["Fahrrad", "Buch", "fertig"], expect: ["Anzahl der Wünsche: 2", "- Fahrrad", "- Buch"] },
+          { inputs: ["fertig"], expect: ["Anzahl der Wünsche: 0"] },
+          { inputs: ["Hund", "Kopfhörer", "Reise", "fertig"], expect: ["Anzahl der Wünsche: 3", "- Hund", "- Kopfhörer", "- Reise"] }
+        ],
+        hints: [
+          `Plane zuerst: leere Liste anlegen, ersten Wunsch erfragen, sammeln solange nicht fertig eingegeben wird, Anzahl ausgeben, alle Wünsche ausgeben.`,
+          `Das Sammeln funktioniert wie im Beispiel oben: in der Schleife erst anhängen, dann neu fragen.`,
+          `Die Ausgabe am Ende ist eine eigene Schleife: <code>for w in wuensche:</code> und darin <code>print("-", w)</code>`
+        ],
+        parsons: {
+          lines: [
+            `wuensche = []`,
+            `wunsch = input("Was wünschst du dir? ")`,
+            `while wunsch != "fertig":`,
+            `    wuensche.append(wunsch)`,
+            `    wunsch = input("Was wünschst du dir? ")`,
+            `print("Anzahl der Wünsche:", len(wuensche))`,
+            `for w in wuensche:`,
+            `    print("-", w)`
+          ],
+          distractors: [`    wuensche.append("wunsch")`]
+        },
+        gaps: `wuensche = {{2}}
+wunsch = input("Was wünschst du dir? ")
+while wunsch {{2}} "fertig":
+    wuensche.{{6}}(wunsch)
+    wunsch = input("Was wünschst du dir? ")
+print("Anzahl der Wünsche:", {{3}}(wuensche))
+for w in {{8}}:
+    print("-", w)`,
+        starter: `wuensche = []
+`
+      }
+    ]
+  },
   { id: "w5", title: "Welt 5: Funktionen", sub: "Eigene Befehle bauen", levels: [] },
   { id: "w6", title: "Welt 6: Dein Projekt", sub: "Ein eigenes kleines Spiel", levels: [] }
 ];
