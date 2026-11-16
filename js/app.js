@@ -205,6 +205,7 @@ ${CONSOLE_HTML}
         });
         if (my !== runId) return;
         if (res.error) feedback("info", Engine.errorHtml(Engine.explain(res.error, code)));
+        else if (!res.output) conNote("Das Programm ist durchgelaufen, hat aber nichts ausgegeben.");
         opts.forEach(o => { o.disabled = false; });
         $("#optnote").hidden = true;
       });

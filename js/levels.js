@@ -1307,6 +1307,365 @@ for w in {{8}}:
       }
     ]
   },
-  { id: "w5", title: "Welt 5: Funktionen", sub: "Eigene Befehle bauen", levels: [] },
+  {
+    id: "w5",
+    title: "Welt 5: Funktionen",
+    sub: "Eigene Befehle bauen",
+    levels: [
+      {
+        id: "w5l1",
+        title: "Eigene Befehle",
+        primm: {
+          predict: {
+            options: [`Tor!\nWas für ein Spiel!`, `Tor!\nTor!\nWas für ein Spiel!\nWas für ein Spiel!`, `Tor!\nWas für ein Spiel!\nTor!\nWas für ein Spiel!`],
+            correct: 2,
+            explain: `Die Funktion wird zweimal aufgerufen. Bei jedem Aufruf laufen ihre beiden Zeilen von oben nach unten durch.`
+          },
+          investigate: {
+            task: `<p>Lösche die beiden letzten Zeilen, in denen <code>jubel()</code> steht, und führe das Programm aus.</p>`,
+            question: `Was passiert?`,
+            options: [`Die beiden Sätze werden einmal ausgegeben.`, `Es wird nichts ausgegeben.`, `Python meldet einen Fehler.`],
+            correct: 1,
+            explain: `Mit <code>def</code> bringst du Python einen neuen Befehl nur bei. Ausgeführt wird er erst, wenn du ihn aufrufst.`
+          }
+        },
+        intro: `<p>Bisher hast du Befehle benutzt, die es schon gibt. Mit <code>def</code> baust du eigene. Solche eigenen Befehle heißen Funktionen.</p>
+<p>Nach <code>def</code> kommen der Name, runde Klammern und ein Doppelpunkt. Alles Eingerückte gehört zur Funktion. Aufgerufen wird sie mit ihrem Namen und Klammern.</p>`,
+        example: `def jubel():
+    print("Tor!")
+    print("Was für ein Spiel!")
+
+jubel()
+jubel()`,
+        task: `<p>Schreibe eine Funktion <code>trennlinie</code>, die zehn Gleichheitszeichen ausgibt.</p>
+<p>Benutze sie zweimal, sodass die Ausgabe wie im Beispiel unten aussieht.</p>`,
+        sample: `==========
+Python Quest
+==========`,
+        tests: [{ inputs: [], expect: ["==========", "Python Quest", "=========="] }],
+        mustNot: [{ re: /={10}[\s\S]*={10}/, msg: `Die Ausgabe stimmt. Schreibe die Linie aber nur einmal in deinen Code und rufe die Funktion zweimal auf.` }],
+        must: [{ re: /def\s+trennlinie\s*\(\s*\)\s*:/, msg: `Die Ausgabe stimmt. Baue aber eine Funktion mit dem Namen <code>trennlinie</code>.` }],
+        hints: [
+          `Zuerst kommt die Funktion mit <code>def</code>. Erst danach kannst du sie benutzen.`,
+          `Die Funktion besteht aus zwei Zeilen: <code>def trennlinie():</code> und darunter eingerückt das <code>print</code> mit der Linie.`,
+          `Das Programm darunter hat drei Zeilen ohne Einrückung: <code>trennlinie()</code>, dann <code>print("Python Quest")</code>, dann wieder <code>trennlinie()</code>.`
+        ],
+        parsons: {
+          lines: [`def trennlinie():`, `    print("==========")`, `trennlinie()`, `print("Python Quest")`, `trennlinie()`],
+          distractors: [`trennlinie`]
+        },
+        gaps: `{{3}} trennlinie(){{1}}
+    print("==========")
+{{12}}
+print("Python Quest")
+trennlinie()`,
+        starter: `def trennlinie():
+`
+      },
+      {
+        id: "w5l2",
+        title: "Funktionen mit Eingang",
+        primm: {
+          predict: {
+            options: [`Hallo name\nSchön, dass du da bist.\nHallo name\nSchön, dass du da bist.`, `Hallo Ali\nSchön, dass du da bist.\nHallo Bea\nSchön, dass du da bist.`, `Hallo Ali\nHallo Bea\nSchön, dass du da bist.\nSchön, dass du da bist.`],
+            correct: 1,
+            explain: `Der Wert in den Klammern des Aufrufs landet in der Variable <code>name</code>. So macht dieselbe Funktion bei jedem Aufruf etwas anderes.`
+          },
+          investigate: {
+            task: `<p>Ändere den letzten Aufruf zu <code>begruesse()</code>, also mit leeren Klammern. Führe das Programm dann aus.</p>`,
+            question: `Was passiert?`,
+            options: [`Die Funktion begrüßt ohne Namen.`, `Python meldet einen Fehler, weil der Funktion ein Wert fehlt.`, `Alles läuft wie vorher.`],
+            correct: 1,
+            explain: `Die Funktion erwartet genau einen Wert. Bekommt sie keinen, weiß sie nicht, was in <code>name</code> stehen soll. Die Zeilen davor laufen trotzdem, der Fehler kommt erst beim falschen Aufruf.`
+          }
+        },
+        intro: `<p>Funktionen können Werte entgegennehmen. Dafür steht in den Klammern hinter dem Namen eine Variable. Sie heißt Parameter.</p>
+<p>Beim Aufruf schreibst du den Wert in die Klammern. <code>print()</code> und <code>input()</code> funktionieren genauso.</p>`,
+        example: `def begruesse(name):
+    print("Hallo", name)
+    print("Schön, dass du da bist.")
+
+begruesse("Ali")
+begruesse("Bea")`,
+        task: `<p>Schreibe eine Funktion <code>geburtstag</code> mit einem Parameter für den Namen. Sie gibt zwei Zeilen aus, so wie im Beispiel unten.</p>
+<p>Dein Programm fragt, wer Geburtstag hat, und ruft die Funktion mit der Antwort auf.</p>`,
+        sample: `Wer hat Geburtstag? <b>Mika</b>
+Alles Gute, Mika
+Heute wird gefeiert.`,
+        tests: [
+          { inputs: ["Mika"], expect: ["Alles Gute, Mika", "Heute wird gefeiert."] },
+          { inputs: ["Zeynep"], expect: ["Alles Gute, Zeynep", "Heute wird gefeiert."] }
+        ],
+        must: [{ re: /def\s+geburtstag\s*\(\s*\w+\s*\)\s*:/, msg: `Die Ausgabe stimmt. Baue aber eine Funktion <code>geburtstag</code> mit einem Parameter.` }],
+        hints: [
+          `Die Funktion beginnt mit <code>def geburtstag(name):</code>`,
+          `In der Funktion stehen zwei <code>print</code> Zeilen. Das Komma nach Gute gehört in den Text: <code>print("Alles Gute,", name)</code>`,
+          `Unter der Funktion fragst du mit <code>input()</code> nach dem Namen und rufst dann <code>geburtstag(kind)</code> auf.`
+        ],
+        parsons: {
+          lines: [`def geburtstag(name):`, `    print("Alles Gute,", name)`, `    print("Heute wird gefeiert.")`, `kind = input("Wer hat Geburtstag? ")`, `geburtstag(kind)`],
+          distractors: [`geburtstag("kind")`]
+        },
+        gaps: `def geburtstag({{5}}):
+    print("Alles Gute,", {{5}})
+    print("Heute wird gefeiert.")
+kind = input("Wer hat Geburtstag? ")
+{{11}}(kind)`,
+        starter: `def geburtstag(name):
+`
+      },
+      {
+        id: "w5l3",
+        title: "Zwei Eingänge",
+        primm: {
+          predict: {
+            options: [`name ist alter Jahre alt.\nname ist alter Jahre alt.`, `Ali ist 14 Jahre alt.\nBea ist 15 Jahre alt.`, `Ali ist 15 Jahre alt.\nBea ist 14 Jahre alt.`],
+            correct: 2,
+            explain: `Der erste Wert im Aufruf landet im ersten Parameter, der zweite im zweiten. Python ordnet nur nach der Reihenfolge zu.`
+          },
+          investigate: {
+            task: `<p>Vertausche im ersten Aufruf die beiden Werte, sodass dort <code>vorstellen(15, "Ali")</code> steht. Führe das Programm dann aus.</p>`,
+            question: `Was steht in der ersten Zeile der Ausgabe?`,
+            options: [`Ali ist 15 Jahre alt.`, `15 ist Ali Jahre alt.`, `Python meldet einen Fehler.`],
+            correct: 1,
+            explain: `Python weiß nicht, was ein Name und was ein Alter ist. Es setzt die Werte stur der Reihe nach ein. Auf die Reihenfolge musst du selbst achten.`
+          }
+        },
+        intro: `<p>Eine Funktion kann mehrere Parameter haben. Sie werden durch Kommas getrennt.</p>
+<p>Beim Aufruf gibst du genauso viele Werte an, in derselben Reihenfolge.</p>`,
+        example: `def vorstellen(name, alter):
+    print(name, "ist", alter, "Jahre alt.")
+
+vorstellen("Ali", 15)
+vorstellen("Bea", 14)`,
+        task: `<p>Schreibe eine Funktion <code>wechselgeld</code> mit zwei Parametern: dem gegebenen Geld und dem Preis. Sie rechnet das Wechselgeld aus und gibt es aus.</p>
+<p>Dein Programm fragt nach beiden Beträgen und ruft die Funktion damit auf.</p>`,
+        sample: `Wie viel Geld gibst du? <b>20</b>
+Was kostet es? <b>13</b>
+Wechselgeld: 7 Euro`,
+        tests: [
+          { inputs: ["20", "13"], expect: ["Wechselgeld: 7 Euro"] },
+          { inputs: ["50", "5"], expect: ["Wechselgeld: 45 Euro"] }
+        ],
+        must: [{ re: /def\s+wechselgeld\s*\(\s*\w+\s*,\s*\w+\s*\)\s*:/, msg: `Die Ausgabe stimmt. Baue aber eine Funktion <code>wechselgeld</code> mit zwei Parametern.` }],
+        hints: [
+          `Die Funktion beginnt mit <code>def wechselgeld(gegeben, preis):</code>`,
+          `In der Funktion steht eine Ausgabe mit einer Rechnung: <code>print("Wechselgeld:", gegeben - preis, "Euro")</code>`,
+          `Beide Eingaben müssen Zahlen sein. Beim Aufruf kommt zuerst das gegebene Geld, dann der Preis.`
+        ],
+        parsons: {
+          lines: [`def wechselgeld(gegeben, preis):`, `    print("Wechselgeld:", gegeben - preis, "Euro")`, `g = int(input("Wie viel Geld gibst du? "))`, `p = int(input("Was kostet es? "))`, `wechselgeld(g, p)`],
+          distractors: [`wechselgeld(p, g)`]
+        },
+        gaps: `def wechselgeld(gegeben{{1}} preis):
+    print("Wechselgeld:", gegeben {{2}} preis, "Euro")
+g = int(input("Wie viel Geld gibst du? "))
+p = int(input("Was kostet es? "))
+wechselgeld({{2}}, {{2}})`,
+        starter: `def wechselgeld(gegeben, preis):
+`
+      },
+      {
+        id: "w5l4",
+        title: "Etwas zurückgeben",
+        primm: {
+          predict: {
+            options: [`10\n40`, `10\n41`, `zahl * 2\n41`],
+            correct: 1,
+            explain: `<code>return</code> gibt das Ergebnis an die Stelle zurück, an der die Funktion aufgerufen wurde. Dort kannst du es speichern oder gleich damit weiterrechnen.`
+          },
+          investigate: {
+            task: `<p>Ersetze in der Funktion das Wort <code>return</code> durch <code>print</code>, sodass dort <code>print(zahl * 2)</code> steht. Führe das Programm dann aus.</p>`,
+            question: `Was steht in der zweiten Zeile der Ausgabe?`,
+            options: [`10`, `None`, `5`],
+            correct: 1,
+            explain: `<code>print</code> zeigt einen Wert nur an. Zurückgegeben wird dabei nichts, und dieses Nichts heißt in Python <code>None</code>. Deshalb scheitert danach auch die Rechnung in der letzten Zeile. Wer mit einem Ergebnis weiterarbeiten will, braucht <code>return</code>.`
+          }
+        },
+        intro: `<p>Viele Funktionen sollen nichts ausgeben, sondern ein Ergebnis liefern. So wie <code>len()</code> eine Zahl liefert, mit der du weiterarbeiten kannst.</p>
+<p>Dafür gibt es <code>return</code>. Das Wort bedeutet zurückgeben.</p>`,
+        example: `def verdopple(zahl):
+    return zahl * 2
+
+ergebnis = verdopple(5)
+print(ergebnis)
+print(verdopple(20) + 1)`,
+        task: `<p>Schreibe eine Funktion <code>in_cent</code>, die einen Betrag in Euro bekommt und ihn in Cent zurückgibt.</p>
+<p>Dein Programm fragt nach einem Betrag in Euro und gibt mit Hilfe der Funktion die Cent aus.</p>`,
+        sample: `Wie viele Euro? <b>3</b>
+Das sind 300 Cent`,
+        tests: [
+          { inputs: ["3"], expect: ["Das sind 300 Cent"] },
+          { inputs: ["12"], expect: ["Das sind 1200 Cent"] }
+        ],
+        must: [
+          { re: /def\s+in_cent\s*\(\s*\w+\s*\)\s*:/, msg: `Die Ausgabe stimmt. Baue aber eine Funktion <code>in_cent</code> mit einem Parameter.` },
+          { re: /\breturn\b/, msg: `Die Ausgabe stimmt. Die Funktion soll das Ergebnis aber mit <code>return</code> zurückgeben.` }
+        ],
+        hints: [
+          `Die Funktion hat nur zwei Zeilen: den Kopf mit <code>def</code> und eine Zeile mit <code>return</code>.`,
+          `Ein Euro hat 100 Cent. Die Funktion gibt also <code>euro * 100</code> zurück.`,
+          `Die Ausgabe ruft die Funktion mittendrin auf: <code>print("Das sind", in_cent(betrag), "Cent")</code>`
+        ],
+        parsons: {
+          lines: [`def in_cent(euro):`, `    return euro * 100`, `betrag = int(input("Wie viele Euro? "))`, `print("Das sind", in_cent(betrag), "Cent")`],
+          distractors: [`    print(euro * 100)`]
+        },
+        gaps: `def in_cent({{4}}):
+    {{6}} euro * 100
+betrag = int(input("Wie viele Euro? "))
+print("Das sind", {{7}}(betrag), "Cent")`,
+        starter: `def in_cent(euro):
+`
+      },
+      {
+        id: "w5l5",
+        title: "Funktionen, die entscheiden",
+        primm: {
+          predict: {
+            options: [`bestanden\nbestanden`, `72\n31`, `bestanden\nnicht bestanden`],
+            correct: 2,
+            explain: `Die Funktion prüft den Wert und gibt je nach Ergebnis einen anderen Text zurück. Mit <code>return</code> ist die Funktion sofort zu Ende.`
+          },
+          investigate: {
+            task: `<p>Füge ganz unten eine Zeile hinzu: <code>print(bewertung(50))</code>. Führe das Programm dann aus.</p>`,
+            question: `Was steht in der neuen dritten Zeile der Ausgabe?`,
+            options: [`bestanden`, `nicht bestanden`],
+            correct: 0,
+            explain: `Die Bedingung lautet größer oder gleich, also zählt die 50 mit. Eine Funktion lässt sich bequem mit solchen Grenzfällen testen: ein Aufruf, eine Zeile.`
+          }
+        },
+        intro: `<p>In einer Funktion darf alles stehen, was du kennst: auch <code>if</code>, <code>elif</code> und <code>else</code>.</p>
+<p>So kann eine Funktion je nach Wert etwas anderes zurückgeben. Die Zeilen sind dann doppelt eingerückt.</p>`,
+        example: `def bewertung(punkte):
+    if punkte >= 50:
+        return "bestanden"
+    else:
+        return "nicht bestanden"
+
+print(bewertung(72))
+print(bewertung(31))`,
+        task: `<p>Das Schwimmbad aus Welt 2 bekommt eine Funktion. <code>eintritt</code> bekommt das Alter und gibt den Preis zurück: unter 6 Jahren 0, unter 18 Jahren 3, sonst 5.</p>
+<p>Dein Programm fragt nach dem Alter und gibt den Preis mit Hilfe der Funktion aus.</p>`,
+        sample: `Wie alt bist du? <b>12</b>
+Eintritt: 3 Euro`,
+        tests: [
+          { inputs: ["12"], expect: ["Eintritt: 3 Euro"] },
+          { inputs: ["4"], expect: ["Eintritt: 0 Euro"] },
+          { inputs: ["30"], expect: ["Eintritt: 5 Euro"] },
+          { inputs: ["18"], expect: ["Eintritt: 5 Euro"] },
+          { inputs: ["6"], expect: ["Eintritt: 3 Euro"] }
+        ],
+        must: [
+          { re: /def\s+eintritt\s*\(\s*\w+\s*\)\s*:/, msg: `Die Ausgabe stimmt. Baue aber eine Funktion <code>eintritt</code> mit einem Parameter.` },
+          { re: /\breturn\b/, msg: `Die Ausgabe stimmt. Die Funktion soll den Preis aber mit <code>return</code> zurückgeben.` }
+        ],
+        hints: [
+          `In der Funktion stehen drei Fälle mit <code>if</code>, <code>elif</code> und <code>else</code>. Jeder Fall gibt mit <code>return</code> eine Zahl zurück.`,
+          `Der erste Fall lautet <code>if alter &lt; 6:</code> und darunter doppelt eingerückt <code>return 0</code>.`,
+          `Die Ausgabe lautet <code>print("Eintritt:", eintritt(a), "Euro")</code>, wenn deine Eingabe in <code>a</code> steht.`
+        ],
+        parsons: {
+          lines: [`def eintritt(alter):`, `    if alter < 6:`, `        return 0`, `    elif alter < 18:`, `        return 3`, `    else:`, `        return 5`, `a = int(input("Wie alt bist du? "))`, `print("Eintritt:", eintritt(a), "Euro")`],
+          distractors: [`    elif alter <= 18:`]
+        },
+        gaps: `{{3}} eintritt(alter):
+    if alter < 6:
+        {{6}} 0
+    {{4}} alter < 18:
+        return 3
+    else:
+        return 5
+a = int(input("Wie alt bist du? "))
+print("Eintritt:", eintritt({{2}}), "Euro")`,
+        starter: `def eintritt(alter):
+`
+      },
+      {
+        id: "w5l6",
+        title: "Die Kinokasse",
+        boss: true,
+        primm: {
+          predict: {
+            options: [`Summe: 6`, `Summe: 14`, `Summe: 9`],
+            correct: 1,
+            explain: `Die Schleife ruft die Funktion mit 1, 2 und 3 auf. Zurück kommen 1, 4 und 9. Zusammen ergibt das 14.`
+          },
+          investigate: {
+            task: `<p>Ändere die Funktion so, dass sie <code>zahl * 2</code> zurückgibt. Führe das Programm dann aus.</p>`,
+            question: `Was wird ausgegeben?`,
+            options: [`Summe: 14`, `Summe: 6`, `Summe: 12`],
+            correct: 2,
+            explain: `Du hast nur eine Stelle geändert, und das ganze Programm rechnet anders. Das ist der große Vorteil von Funktionen: Eine Regel steht an genau einem Ort.`
+          }
+        },
+        intro: `<p>Im Bosslevel arbeitet eine Funktion mit einer Schleife zusammen. Die Funktion kennt die Preisregel, die Schleife sammelt die Kundschaft ein.</p>
+<p>Neu ist nichts mehr. Du brauchst Funktionen mit <code>return</code>, eine <code>while</code> Schleife und zwei Zähler.</p>`,
+        example: `def quadrat(zahl):
+    return zahl * zahl
+
+summe = 0
+for i in range(1, 4):
+    summe = summe + quadrat(i)
+print("Summe:", summe)`,
+        task: `<p>Schreibe eine Funktion <code>ticketpreis</code>. Sie bekommt das Alter und gibt den Preis zurück: unter 12 Jahren 6 Euro, sonst 10 Euro.</p>
+<p>Dein Programm fragt so lange nach dem Alter der nächsten Person, bis <code>fertig</code> eingegeben wird. Danach gibt es die Anzahl der Tickets und den Gesamtpreis aus.</p>`,
+        sample: `Alter oder fertig: <b>8</b>
+Alter oder fertig: <b>35</b>
+Alter oder fertig: <b>fertig</b>
+Tickets: 2
+Gesamtpreis: 16 Euro`,
+        tests: [
+          { inputs: ["8", "35", "fertig"], expect: ["Tickets: 2", "Gesamtpreis: 16 Euro"] },
+          { inputs: ["fertig"], expect: ["Tickets: 0", "Gesamtpreis: 0 Euro"] },
+          { inputs: ["12", "11", "40", "5", "fertig"], expect: ["Tickets: 4", "Gesamtpreis: 32 Euro"] }
+        ],
+        must: [
+          { re: /def\s+ticketpreis\s*\(\s*\w+\s*\)\s*:/, msg: `Die Ausgabe stimmt. Baue aber eine Funktion <code>ticketpreis</code> mit einem Parameter.` },
+          { re: /\breturn\b/, msg: `Die Ausgabe stimmt. Die Funktion soll den Preis aber mit <code>return</code> zurückgeben.` }
+        ],
+        hints: [
+          `Plane zuerst: Funktion schreiben, zwei Zähler auf 0 setzen, erste Eingabe holen, Schleife bis fertig, am Ende zwei Ausgaben.`,
+          `Die Eingabe ist ein Text, weil auch das Wort fertig möglich sein muss. Wandle sie erst beim Aufruf um: <code>ticketpreis(int(eingabe))</code>`,
+          `In der Schleife stehen drei Zeilen: den Preis zum Gesamtpreis zählen, die Anzahl um 1 erhöhen, neu fragen.`
+        ],
+        parsons: {
+          lines: [
+            `def ticketpreis(alter):`,
+            `    if alter < 12:`,
+            `        return 6`,
+            `    else:`,
+            `        return 10`,
+            `gesamt = 0`,
+            `anzahl = 0`,
+            `eingabe = input("Alter oder fertig: ")`,
+            `while eingabe != "fertig":`,
+            `    gesamt = gesamt + ticketpreis(int(eingabe))`,
+            `    anzahl = anzahl + 1`,
+            `    eingabe = input("Alter oder fertig: ")`,
+            `print("Tickets:", anzahl)`,
+            `print("Gesamtpreis:", gesamt, "Euro")`
+          ],
+          distractors: [`    gesamt = ticketpreis(int(eingabe))`]
+        },
+        gaps: `def ticketpreis(alter):
+    if alter < 12:
+        {{6}} 6
+    else:
+        return 10
+gesamt = {{2}}
+anzahl = 0
+eingabe = input("Alter oder fertig: ")
+while eingabe != "fertig":
+    gesamt = gesamt + {{11}}(int(eingabe))
+    anzahl = anzahl {{2}} 1
+    eingabe = input("Alter oder fertig: ")
+print("Tickets:", {{6}})
+print("Gesamtpreis:", gesamt, "Euro")`,
+        starter: `def ticketpreis(alter):
+`
+      }
+    ]
+  },
   { id: "w6", title: "Welt 6: Dein Projekt", sub: "Ein eigenes kleines Spiel", levels: [] }
 ];

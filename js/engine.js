@@ -105,6 +105,12 @@ const Engine = (() => {
       } else {
         text = `Das Wort <code>${esc(name)}</code> ist Python unbekannt. Soll es ein Text sein, dann fehlen die Anführungszeichen. Soll es eine Variable sein, dann prüfe die Schreibweise und ob du sie weiter oben angelegt hast.`;
       }
+    } else if (type === "TypeError" && /argument/i.test(original)) {
+      title = "Die Funktion bekommt die falsche Anzahl an Werten";
+      text = "Zähle die Werte in den Klammern des Aufrufs und vergleiche sie mit den Parametern hinter <code>def</code>. Es müssen gleich viele sein.";
+    } else if (type === "TypeError" && /NoneType/.test(original)) {
+      title = "Hier fehlt ein Wert";
+      text = "Python rechnet mit <code>None</code>, also mit nichts. Meistens fehlt in einer Funktion das <code>return</code>.";
     } else if (type === "TypeError") {
       title = "Text und Zahl passen so nicht zusammen";
       text = "Du rechnest hier mit etwas, das für Python ein Text ist. Eine Eingabe aus <code>input()</code> ist immer Text. Mit <code>int()</code> machst du daraus eine Zahl.";
