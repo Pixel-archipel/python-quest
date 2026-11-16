@@ -11,12 +11,12 @@ const Engine = (() => {
     Sk.configure({
       output: t => {
         out += t;
-        if (out.length > 20000) throw new Error("ZuVielAusgabe");
+        if (out.length > 8000) throw new Error("ZuVielAusgabe");
         if (opts.onOutput) opts.onOutput(t);
       },
       inputfun: prompt => {
         if (queue) {
-          if (!queue.length) { starved = true; return ""; }
+          if (!queue.length) { starved = true; throw new Error("KeineEingabeMehr"); }
           return queue.shift();
         }
         return opts.onInput(prompt).then(v => { Sk.execStart = new Date(); return v; });
@@ -76,7 +76,7 @@ const Engine = (() => {
       } else if (colon) {
         line = colon;
         title = "Der Doppelpunkt fehlt";
-        text = "Zeilen mit <code>if</code>, <code>elif</code> und <code>else</code> enden immer mit einem Doppelpunkt.";
+        text = "Zeilen mit <code>if</code>, <code>elif</code>, <code>else</code>, <code>for</code> und <code>while</code> enden immer mit einem Doppelpunkt.";
       } else if (block) {
         line = block;
         title = "Nach dem Doppelpunkt fehlt die Einrückung";
@@ -100,7 +100,7 @@ const Engine = (() => {
       const m = original.match(/name '([^']+)'/);
       const name = m ? m[1] : "";
       title = "Python kennt dieses Wort nicht";
-      if (name && name !== name.toLowerCase() && ["print", "input", "int", "str"].includes(name.toLowerCase())) {
+      if (name && name !== name.toLowerCase() && ["print", "input", "int", "str", "range"].includes(name.toLowerCase())) {
         text = `Python unterscheidet große und kleine Buchstaben. Schreibe <code>${esc(name.toLowerCase())}</code> komplett klein.`;
       } else {
         text = `Das Wort <code>${esc(name)}</code> ist Python unbekannt. Soll es ein Text sein, dann fehlen die Anführungszeichen. Soll es eine Variable sein, dann prüfe die Schreibweise und ob du sie weiter oben angelegt hast.`;
@@ -166,7 +166,7 @@ const Engine = (() => {
       const tested = t.inputs && t.inputs.length
         ? `<p class="orig">Getestet mit den Eingaben: ${t.inputs.map(esc).join(", ")}</p>` : "";
       if (r.starved) {
-        return { ok: false, output: firstOut, html: `<p>Dein Programm fragt öfter nach einer Eingabe, als die Aufgabe verlangt. Zähle deine <code>input</code> Befehle.</p>` };
+        return { ok: false, output: firstOut, html: `<p>Dein Programm fragt öfter nach einer Eingabe, als die Aufgabe verlangt. Zähle deine <code>input</code> Befehle. Bei einer Schleife: Prüfe, ob sie rechtzeitig aufhört.</p>${tested}` };
       }
       if (r.error) return { ok: false, output: firstOut, html: errorHtml(explain(r.error, code)) + tested };
       if (r.left > 0) {

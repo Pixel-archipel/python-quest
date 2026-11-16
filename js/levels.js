@@ -645,7 +645,340 @@ if punkte == {{2}}:
       }
     ]
   },
-  { id: "w3", title: "Welt 3: Schleifen", sub: "Wiederholungen mit for und while", levels: [] },
+  {
+    id: "w3",
+    title: "Welt 3: Schleifen",
+    sub: "Wiederholungen mit for und while",
+    levels: [
+      {
+        id: "w3l1",
+        title: "Wiederholen",
+        primm: {
+          predict: {
+            options: [`Tor!\nAbpfiff.`, `Tor!\nAbpfiff.\nTor!\nAbpfiff.\nTor!\nAbpfiff.`, `Tor!\nTor!\nTor!\nAbpfiff.`],
+            correct: 2,
+            explain: `Die eingerückte Zeile gehört zur Schleife und läuft dreimal. Die letzte Zeile ist nicht eingerückt. Sie kommt erst dran, wenn die Schleife fertig ist.`
+          },
+          investigate: {
+            task: `<p>Rücke auch die letzte Zeile um vier Leerzeichen ein und führe das Programm aus.</p>`,
+            question: `Wie oft erscheint Abpfiff. jetzt?`,
+            options: [`Einmal`, `Dreimal`, `Gar nicht`],
+            correct: 1,
+            explain: `Die Einrückung entscheidet, was wiederholt wird. Alles Eingerückte gehört zur Schleife.`
+          }
+        },
+        intro: `<p>Computer sind gut darin, Dinge zu wiederholen. Dafür gibt es Schleifen. Die Zeile <code>for i in range(3):</code> bedeutet: Wiederhole das Folgende dreimal.</p>
+<p>Wie bei <code>if</code> steht am Ende ein Doppelpunkt, und alles Eingerückte gehört dazu.</p>`,
+        example: `for i in range(3):
+    print("Tor!")
+print("Abpfiff.")`,
+        task: `<p>Dein Programm gibt fünfmal <code>Python ist cool!</code> aus und danach einmal <code>Fertig.</code></p>
+<p>Der Satz darf in deinem Code nur einmal vorkommen.</p>`,
+        sample: `Python ist cool!
+Python ist cool!
+Python ist cool!
+Python ist cool!
+Python ist cool!
+Fertig.`,
+        tests: [{ inputs: [], expect: ["Python ist cool!", "Python ist cool!", "Python ist cool!", "Python ist cool!", "Python ist cool!", "Fertig."] }],
+        mustNot: [{ re: /Python ist cool![\s\S]*Python ist cool!/, msg: `Die Ausgabe stimmt. Schreibe den Satz aber nur einmal in deinen Code. Das Wiederholen übernimmt die Schleife.` }],
+        must: [{ re: /\bfor\b/, msg: `Die Ausgabe stimmt. Löse die Aufgabe aber mit einer <code>for</code> Schleife.` }],
+        hints: [
+          `Du brauchst nur drei Zeilen: die Schleife, eine eingerückte Ausgabe und eine Ausgabe ohne Einrückung.`,
+          `Die Zahl in <code>range()</code> bestimmt, wie oft wiederholt wird.`,
+          `Die erste Zeile lautet <code>for i in range(5):</code>`
+        ],
+        parsons: {
+          lines: [`for i in range(5):`, `    print("Python ist cool!")`, `print("Fertig.")`],
+          distractors: [`    print("Fertig.")`]
+        },
+        gaps: `{{3}} i in range({{2}}){{1}}
+    print("Python ist cool!")
+print("Fertig.")`,
+        starter: `# Benutze eine Schleife
+`
+      },
+      {
+        id: "w3l2",
+        title: "Mitzählen",
+        primm: {
+          predict: {
+            options: [`Runde 0\nRunde 1\nRunde 2\nRunde 3`, `Runde 1\nRunde 2\nRunde 3`, `Runde 1\nRunde 2\nRunde 3\nRunde 4`, `Runde i\nRunde i\nRunde i`],
+            correct: 1,
+            explain: `<code>range(1, 4)</code> zählt ab der 1 und hört vor der 4 auf. Die erste Zahl ist dabei, die zweite nicht mehr.`
+          },
+          investigate: {
+            task: `<p>Ändere <code>range(1, 4)</code> zu <code>range(4)</code> und führe das Programm aus.</p>`,
+            question: `Mit welcher Zahl beginnt die Ausgabe jetzt?`,
+            options: [`Mit 1`, `Mit 4`, `Mit 0`],
+            correct: 2,
+            explain: `Ohne Startwert beginnt Python bei 0. <code>range(4)</code> zählt also 0, 1, 2, 3. Das sind vier Durchläufe, aber die 4 selbst kommt nie vor.`
+          }
+        },
+        intro: `<p>Das <code>i</code> in der Schleife ist eine Variable. Sie zählt bei jedem Durchlauf mit, und du kannst sie benutzen.</p>
+<p>Mit zwei Zahlen in <code>range()</code> legst du Anfang und Ende fest.</p>`,
+        example: `for i in range(1, 4):
+    print("Runde", i)`,
+        task: `<p>Baue einen Einmaleins-Trainer. Das Programm fragt, welche Reihe geübt werden soll.</p>
+<p>Dann gibt es die Reihe von 1 bis 10 aus, so wie im Beispiel unten.</p>`,
+        sample: `Welche Reihe möchtest du üben? <b>7</b>
+1 mal 7 ist 7
+2 mal 7 ist 14
+3 mal 7 ist 21
+...
+10 mal 7 ist 70`,
+        tests: [
+          { inputs: ["7"], expect: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => `${i} mal 7 ist ${i * 7}`) },
+          { inputs: ["3"], expect: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => `${i} mal 3 ist ${i * 3}`) }
+        ],
+        hints: [
+          `Die Schleife soll von 1 bis 10 zählen. Denke daran, dass die zweite Zahl in <code>range()</code> nicht mehr dabei ist.`,
+          `Die Schleife lautet <code>for i in range(1, 11):</code>`,
+          `Die Ausgabe hat fünf Teile: <code>print(i, "mal", zahl, "ist", i * zahl)</code>`
+        ],
+        parsons: {
+          lines: [`zahl = int(input("Welche Reihe möchtest du üben? "))`, `for i in range(1, 11):`, `    print(i, "mal", zahl, "ist", i * zahl)`],
+          distractors: [`for i in range(1, 10):`]
+        },
+        gaps: `zahl = int(input("Welche Reihe möchtest du üben? "))
+for {{2}} in range(1, {{3}}):
+    print(i, "mal", zahl, "ist", {{9}})`,
+        starter: `zahl = int(input("Welche Reihe möchtest du üben? "))
+`
+      },
+      {
+        id: "w3l3",
+        title: "Zusammenzählen",
+        primm: {
+          predict: {
+            options: [`Summe: 4`, `Summe: 10`, `Summe: 15`, `Summe: 1\nSumme: 3\nSumme: 6\nSumme: 10`],
+            correct: 1,
+            explain: `Die Schleife zählt 1, 2, 3, 4. Bei jedem Durchlauf kommt die aktuelle Zahl zur Summe dazu. Am Ende steht dort 1 plus 2 plus 3 plus 4.`
+          },
+          investigate: {
+            task: `<p>Rücke die letzte Zeile ein, sodass sie zur Schleife gehört. Führe das Programm dann aus.</p>`,
+            question: `Wie viele Zeilen gibt das Programm jetzt aus?`,
+            options: [`Eine`, `Vier`, `Zehn`],
+            correct: 1,
+            explain: `Jetzt siehst du jeden Zwischenstand. Das ist ein guter Trick bei der Fehlersuche: Lass dir in der Schleife anzeigen, was gerade in den Variablen steht.`
+          }
+        },
+        intro: `<p>Den Zähler kennst du aus dem Quiz. In einer Schleife wird daraus ein mächtiges Werkzeug: Du kannst Werte Schritt für Schritt aufsummieren.</p>
+<p>Wichtig ist der Startwert vor der Schleife.</p>`,
+        example: `summe = 0
+for i in range(1, 5):
+    summe = summe + i
+print("Summe:", summe)`,
+        task: `<p>Du sparst nach einem Plan: in der ersten Woche 1 Euro, in der zweiten 2 Euro, in der dritten 3 Euro und so weiter.</p>
+<p>Dein Programm fragt nach der Anzahl der Wochen und gibt aus, wie viel Geld am Ende zusammengekommen ist.</p>`,
+        sample: `Wie viele Wochen sparst du? <b>4</b>
+Gespart: 10 Euro`,
+        tests: [
+          { inputs: ["4"], expect: ["Gespart: 10 Euro"] },
+          { inputs: ["10"], expect: ["Gespart: 55 Euro"] },
+          { inputs: ["1"], expect: ["Gespart: 1 Euro"] }
+        ],
+        must: [{ re: /\b(for|while)\b/, msg: `Die Ausgabe stimmt. Löse die Aufgabe aber mit einer Schleife.` }],
+        hints: [
+          `Du brauchst eine Variable für das gesparte Geld. Sie startet vor der Schleife bei 0.`,
+          `Die Schleife soll bis zur eingegebenen Wochenzahl zählen und diese noch mitnehmen. Dafür brauchst du <code>wochen + 1</code> als Ende.`,
+          `Die Schleife lautet <code>for i in range(1, wochen + 1):</code> und darin steht <code>gespart = gespart + i</code>`
+        ],
+        parsons: {
+          lines: [`wochen = int(input("Wie viele Wochen sparst du? "))`, `gespart = 0`, `for i in range(1, wochen + 1):`, `    gespart = gespart + i`, `print("Gespart:", gespart, "Euro")`],
+          distractors: [`for i in range(1, wochen):`]
+        },
+        gaps: `wochen = int(input("Wie viele Wochen sparst du? "))
+gespart = {{2}}
+for i in range(1, wochen {{2}} 1):
+    gespart = gespart + {{2}}
+print("Gespart:", gespart, "Euro")`,
+        starter: `wochen = int(input("Wie viele Wochen sparst du? "))
+`
+      },
+      {
+        id: "w3l4",
+        title: "Solange",
+        primm: {
+          predict: {
+            options: [`3\n2\n1\n0\nStart!`, `3\n3\n3\nStart!`, `3\n2\n1\nStart!`],
+            correct: 2,
+            explain: `Vor jedem Durchlauf prüft Python die Bedingung. Sobald <code>zahl</code> bei 0 ankommt, stimmt sie nicht mehr. Die Schleife endet, und die 0 wird nicht mehr ausgegeben.`
+          },
+          investigate: {
+            task: `<p>Lösche die Zeile <code>zahl = zahl - 1</code> und führe das Programm aus.</p>`,
+            question: `Was passiert?`,
+            options: [`Das Programm gibt einmal 3 und dann Start! aus.`, `Das Programm gibt immer wieder 3 aus und hört nicht von selbst auf.`, `Python meldet sofort einen Fehler.`],
+            correct: 1,
+            explain: `Das nennt man Endlosschleife. Die Bedingung stimmt für immer, weil sich <code>zahl</code> nie ändert. In einer <code>while</code> Schleife muss sich immer etwas ändern, das die Bedingung irgendwann falsch macht.`
+          }
+        },
+        intro: `<p>Bei <code>for</code> steht vorher fest, wie oft wiederholt wird. Manchmal weiß man das nicht. Dafür gibt es <code>while</code>. Das bedeutet solange.</p>
+<p>Die Schleife läuft, solange die Bedingung stimmt.</p>`,
+        example: `zahl = 3
+while zahl > 0:
+    print(zahl)
+    zahl = zahl - 1
+print("Start!")`,
+        task: `<p>Baue einen Countdown. Das Programm fragt nach der Startzahl und zählt dann bis 1 herunter.</p>
+<p>Zum Schluss gibt es <code>Abheben!</code> aus.</p>`,
+        sample: `Bei welcher Zahl startet der Countdown? <b>3</b>
+3
+2
+1
+Abheben!`,
+        tests: [
+          { inputs: ["3"], expect: ["3", "2", "1", "Abheben!"] },
+          { inputs: ["5"], expect: ["5", "4", "3", "2", "1", "Abheben!"] }
+        ],
+        must: [{ re: /\bwhile\b/, msg: `Die Ausgabe stimmt. Löse die Aufgabe aber mit einer <code>while</code> Schleife.` }],
+        hints: [
+          `In der Schleife passieren zwei Dinge: die Zahl ausgeben und die Zahl um 1 verkleinern.`,
+          `Die Schleife läuft, solange die Zahl größer als 0 ist.`,
+          `Die Schleife lautet <code>while zahl &gt; 0:</code> und darin stehen <code>print(zahl)</code> und <code>zahl = zahl - 1</code>`
+        ],
+        parsons: {
+          lines: [`zahl = int(input("Bei welcher Zahl startet der Countdown? "))`, `while zahl > 0:`, `    print(zahl)`, `    zahl = zahl - 1`, `print("Abheben!")`],
+          distractors: [`    zahl = zahl + 1`]
+        },
+        gaps: `zahl = int(input("Bei welcher Zahl startet der Countdown? "))
+{{5}} zahl {{2}} 0:
+    print(zahl)
+    zahl = zahl {{2}} 1
+print("Abheben!")`,
+        starter: `zahl = int(input("Bei welcher Zahl startet der Countdown? "))
+`
+      },
+      {
+        id: "w3l5",
+        title: "Fragen, bis es stimmt",
+        primm: {
+          predict: {
+            inputs: ["Barcelona", "Madrid"],
+            options: [`Richtig!`, `Leider falsch.\nRichtig!`, `Leider falsch.\nLeider falsch.\nRichtig!`],
+            correct: 1,
+            explain: `Die erste Antwort ist falsch, also läuft die Schleife einmal und fragt neu. Die zweite Antwort stimmt. Damit ist die Bedingung nicht mehr erfüllt, und die Schleife endet.`
+          },
+          investigate: {
+            task: `<p>Führe das Programm aus und antworte gleich beim ersten Mal richtig mit Madrid.</p>`,
+            question: `Wie oft erscheint Leider falsch.?`,
+            options: [`Einmal`, `Gar nicht`],
+            correct: 1,
+            explain: `<code>while</code> prüft die Bedingung schon vor dem ersten Durchlauf. Eine Schleife kann also auch null Mal laufen.`
+          }
+        },
+        intro: `<p>Mit <code>while</code> und <code>input()</code> kann ein Programm so lange nachfragen, bis die Antwort passt.</p>
+<p>Der Trick: In der Schleife steht noch einmal ein <code>input()</code>, das dieselbe Variable neu füllt.</p>`,
+        example: `antwort = input("Wie heißt die Hauptstadt von Spanien? ")
+while antwort != "Madrid":
+    print("Leider falsch.")
+    antwort = input("Versuch es noch einmal: ")
+print("Richtig!")`,
+        task: `<p>Verbessere die Passwortabfrage aus Welt 2. Das Programm fragt so lange nach, bis das Passwort <code>python123</code> eingegeben wird.</p>
+<p>Bei jedem falschen Versuch gibt es <code>Falsches Passwort.</code> aus. Am Ende gibt es <code>Zugang erlaubt.</code> aus.</p>`,
+        sample: `Wie lautet das Passwort? <b>hallo</b>
+Falsches Passwort.
+Noch einmal: <b>python123</b>
+Zugang erlaubt.`,
+        tests: [
+          { inputs: ["hallo", "python123"], expect: ["Falsches Passwort.", "Zugang erlaubt."] },
+          { inputs: ["python123"], expect: ["Zugang erlaubt."] },
+          { inputs: ["a", "b", "c", "python123"], expect: ["Falsches Passwort.", "Falsches Passwort.", "Falsches Passwort.", "Zugang erlaubt."] }
+        ],
+        hints: [
+          `Die Schleife läuft, solange das Passwort falsch ist. Dafür brauchst du <code>!=</code>.`,
+          `In der Schleife stehen zwei Zeilen: die Meldung ausgeben und neu nach dem Passwort fragen.`,
+          `Die Schleife lautet <code>while passwort != "python123":</code> und die Zeile <code>Zugang erlaubt.</code> steht ohne Einrückung dahinter.`
+        ],
+        parsons: {
+          lines: [`passwort = input("Wie lautet das Passwort? ")`, `while passwort != "python123":`, `    print("Falsches Passwort.")`, `    passwort = input("Noch einmal: ")`, `print("Zugang erlaubt.")`],
+          distractors: [`while passwort == "python123":`]
+        },
+        gaps: `passwort = input("Wie lautet das Passwort? ")
+while passwort {{2}} "python123":
+    print("Falsches Passwort.")
+    passwort = {{5}}("Noch einmal: ")
+print("Zugang erlaubt.")`,
+        starter: `passwort = input("Wie lautet das Passwort? ")
+`
+      },
+      {
+        id: "w3l6",
+        title: "Zahlenraten",
+        boss: true,
+        primm: {
+          predict: {
+            inputs: ["1", "9", "4"],
+            options: [`Fehlversuche: 3`, `Fehlversuche: 0`, `Fehlversuche: 2`],
+            correct: 2,
+            explain: `Zwei Tipps sind falsch, also läuft die Schleife zweimal und zählt jedes Mal hoch. Der dritte Tipp stimmt und beendet die Schleife, ohne dass noch einmal gezählt wird.`
+          },
+          investigate: {
+            task: `<p>Führe das Programm aus und rate gleich beim ersten Mal richtig mit 4.</p>`,
+            question: `Was wird ausgegeben?`,
+            options: [`Fehlversuche: 1`, `Fehlversuche: 0`],
+            correct: 1,
+            explain: `Die Schleife läuft kein einziges Mal, also bleibt der Zähler bei seinem Startwert. Überlege bei jedem Zähler, mit welchem Wert er starten muss.`
+          }
+        },
+        intro: `<p>Im Bosslevel baust du dein erstes richtiges Spiel. Du brauchst dafür eine <code>while</code> Schleife, einen Zähler und in der Schleife ein <code>if</code> mit <code>else</code>.</p>
+<p>Neu ist: Das <code>if</code> steht innerhalb der Schleife und ist deshalb doppelt eingerückt.</p>`,
+        example: `versuche = 0
+tipp = int(input("Rate die Zahl: "))
+while tipp != 4:
+    versuche = versuche + 1
+    tipp = int(input("Falsch. Rate noch einmal: "))
+print("Fehlversuche:", versuche)`,
+        task: `<p>Die geheime Zahl ist 7. Dein Programm fragt so lange nach einem Tipp, bis die Zahl erraten ist.</p>
+<p>Ist der Tipp zu niedrig, gibt es <code>Zu klein.</code> aus. Ist er zu hoch, gibt es <code>Zu groß.</code> aus. Am Ende nennt es die Anzahl aller Versuche, den richtigen mitgezählt.</p>`,
+        sample: `Rate die Zahl: <b>3</b>
+Zu klein.
+Rate noch einmal: <b>9</b>
+Zu groß.
+Rate noch einmal: <b>7</b>
+Richtig! Anzahl der Versuche: 3`,
+        tests: [
+          { inputs: ["3", "9", "7"], expect: ["Zu klein.", "Zu groß.", "Richtig! Anzahl der Versuche: 3"] },
+          { inputs: ["7"], expect: ["Richtig! Anzahl der Versuche: 1"] },
+          { inputs: ["10", "8", "1", "6", "7"], expect: ["Zu groß.", "Zu groß.", "Zu klein.", "Zu klein.", "Richtig! Anzahl der Versuche: 5"] }
+        ],
+        hints: [
+          `Plane zuerst: Startwerte festlegen, ersten Tipp erfragen, Schleife solange der Tipp falsch ist, am Ende das Ergebnis ausgeben.`,
+          `Der richtige Versuch zählt mit. Der Zähler startet deshalb bei 1 und nicht bei 0.`,
+          `In der Schleife stehen drei Dinge: das <code>if</code> mit <code>else</code> für die Meldung, der Zähler und die neue Frage mit <code>input()</code>.`
+        ],
+        parsons: {
+          lines: [
+            `geheim = 7`,
+            `versuche = 1`,
+            `tipp = int(input("Rate die Zahl: "))`,
+            `while tipp != geheim:`,
+            `    if tipp < geheim:`,
+            `        print("Zu klein.")`,
+            `    else:`,
+            `        print("Zu groß.")`,
+            `    versuche = versuche + 1`,
+            `    tipp = int(input("Rate noch einmal: "))`,
+            `print("Richtig! Anzahl der Versuche:", versuche)`
+          ],
+          distractors: [`    versuche = 1`]
+        },
+        gaps: `geheim = 7
+versuche = {{2}}
+tipp = int(input("Rate die Zahl: "))
+while tipp {{2}} geheim:
+    if tipp {{2}} geheim:
+        print("Zu klein.")
+    else:
+        print("Zu groß.")
+    versuche = versuche + 1
+    tipp = int({{6}}("Rate noch einmal: "))
+print("Richtig! Anzahl der Versuche:", {{9}})`,
+        starter: `geheim = 7
+`
+      }
+    ]
+  },
   { id: "w4", title: "Welt 4: Listen", sub: "Viele Werte in einer Variable", levels: [] },
   { id: "w5", title: "Welt 5: Funktionen", sub: "Eigene Befehle bauen", levels: [] },
   { id: "w6", title: "Welt 6: Dein Projekt", sub: "Ein eigenes kleines Spiel", levels: [] }
