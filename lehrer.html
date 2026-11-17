@@ -26,6 +26,7 @@
   <script src="js/core.js"></script>
   <script>
     const STUFE = ["offen", "Bausteine", "Lücken", "Frei"];
+    const PROJEKT = ["offen", "Grundspiel", "Ausbau", "Erweiterung"];
     document.getElementById("f").addEventListener("submit", e => {
       e.preventDefault();
       const out = document.getElementById("out");
@@ -39,7 +40,8 @@
       let rows = "";
       levels.forEach((l, i) => {
         const s = stars[l.id] || 0;
-        rows += `<tr><td>${i + 1}</td><td>${l.boss ? "Bosslevel: " : ""}${l.title}</td><td>${STUFE[s]}</td><td>${"★".repeat(s)}</td></tr>`;
+        const stufe = l.project ? PROJEKT[s] + (s ? ", selbst eingeschätzt" : "") : STUFE[s];
+        rows += `<tr><td>${i + 1}</td><td>${l.boss ? "Bosslevel: " : l.project ? "Projekt: " : ""}${l.title}</td><td>${stufe}</td><td>${"★".repeat(s)}</td></tr>`;
       });
       out.innerHTML = `<div class="fb info"><p><b>Code gültig.</b> ${done} von ${levels.length} Leveln gelöst, ${PQ.totalStars(stars)} von ${PQ.maxStars()} Sternen.</p></div>
 <table><thead><tr><th>Nr.</th><th>Level</th><th>Höchste gelöste Stufe</th><th>Sterne</th></tr></thead><tbody>${rows}</tbody></table>`;

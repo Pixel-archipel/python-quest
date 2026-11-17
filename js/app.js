@@ -11,7 +11,15 @@
     { n: 2, name: "Lücken", desc: "Fehlende Teile ergänzen" },
     { n: 3, name: "Frei", desc: "Alles selbst schreiben" }
   ];
-  const RANKS = [[0, "Neuling"], [0.15, "Einsteiger"], [0.4, "Tüftler"], [0.7, "Coder"], [1, "Python-Profi"]];
+  const RANKS = [[0, "Neuling"], [0.1, "Einsteiger"], [0.3, "Tüftler"], [0.55, "Coder"], [0.8, "Python-Profi"]];
+  const TIERS = ["Grundspiel", "Ausbau", "Erweiterung"];
+
+  // Ein Level ist offen, wenn das letzte normale Level davor gelöst ist. Projekte sperren nichts.
+  function isOpen(levels, i) {
+    let j = i - 1;
+    while (j >= 0 && levels[j].project) j--;
+    return j < 0 || (state.stars[levels[j].id] || 0) > 0;
+  }
 
   let state = PQ.load();
   let view = null;   // offenes Level
@@ -43,11 +51,11 @@
         html += `<div class="tiles">`;
         for (const l of w.levels) {
           const i = levels.indexOf(l);
-          const open = i === 0 || (state.stars[levels[i - 1].id] || 0) > 0;
+          const open = isOpen(levels, i);
           const got = state.stars[l.id] || 0;
           html += `<button type="button" class="tile${l.boss ? " boss" : ""}${got ? " done" : ""}" data-id="${l.id}" ${open ? "" : "disabled"}>
-<span class="num">${open ? i + 1 : "🔒"}</span>
-<span class="tname">${l.boss ? "Bosslevel: " : ""}${esc(l.title)}</span>
+<span class="num">${open ? (l.project ? "✎" : i + 1) : "🔒"}</span>
+<span class="tname">${l.boss ? "Bosslevel: " : l.project ? "Projekt: " : ""}${esc(l.title)}</span>
 <span class="tstars">${starHtml(got)}</span></button>`;
         }
         html += `</div>`;
@@ -61,7 +69,90 @@
   }
 
   // ---------- Level ----------
+  // ---------- Werkstatt für Projekte ----------
+  function projectStars(l) {
+    const c = (state.checks || {})[l.id] || [];
+    let idx = 0, stars = 0;
+    l.tiers.forEach((t, n) => {
+      const all = t.items.every((_, k) => c[idx + k]);
+      idx += t.items.length;
+      if (all && stars === n) stars = n + 1;
+    });
+    return stars;
+  }
+
+  function openProject(l) {
+    runId++;
+    view = { level: l, mode: "project", stage: 3, hints: 0 };
+    main.innerHTML = `<div class="level">
+<section class="panel info">
+  <button class="btn ghost" id="back" type="button">← Zur Karte</button>
+  <p class="kicker">Projekt</p>
+  <h1>${esc(l.title)}</h1>
+  <div class="prose">${l.intro}</div>
+  ${l.sample ? `<h3>So könnte es aussehen</h3><pre class="sample">${l.sample}</pre>` : ""}
+  <h3>Checkliste</h3>
+  <p class="note">Hake ab, was dein Programm wirklich kann. Deine Sterne richten sich nach den Haken. Für den nächsten Stern muss eine Stufe vollständig sein.</p>
+  <div id="checks"></div>
+</section>
+<section class="panel work" id="work">
+  <p class="label">Deine Werkstatt</p>
+  <div id="edwrap"></div>
+  <div class="actions">
+    <button id="run" class="btn primary" type="button">▶ Ausführen</button>
+    <button id="scaffold" class="btn" type="button">Gerüst einfügen</button>
+    <button id="copy" class="btn" type="button">Code kopieren</button>
+    <button id="hint" class="btn ghost" type="button"></button>
+  </div>
+  ${CONSOLE_HTML}
+  <ol id="hints" class="hints"></ol>
+</section></div>`;
+    $("#back").addEventListener("click", showMap);
+    const ta = makeEditor($("#edwrap"), state.drafts[l.id] || "", v => { state.drafts[l.id] = v; PQ.save(state); }, 380);
+    $("#run").addEventListener("click", doRun);
+    $("#hint").addEventListener("click", showHint);
+    $("#scaffold").addEventListener("click", () => {
+      if (ta.value.trim() && !window.confirm("Dein bisheriger Code wird durch das Gerüst ersetzt. Fortfahren?")) return;
+      ta.value = l.scaffold;
+      ta.dispatchEvent(new Event("input"));
+      ta.focus();
+    });
+    $("#copy").addEventListener("click", async () => {
+      const b = $("#copy");
+      try { await navigator.clipboard.writeText(ta.value); b.textContent = "Kopiert ✓"; }
+      catch (e) { ta.focus(); ta.select(); b.textContent = "Markiert. Jetzt Strg und C drücken"; }
+      setTimeout(() => { b.textContent = "Code kopieren"; }, 2500);
+    });
+    renderChecks();
+    updateHintButton();
+    window.scrollTo(0, 0);
+  }
+
+  function renderChecks() {
+    const l = view.level;
+    const c = (state.checks || {})[l.id] || [];
+    const got = projectStars(l);
+    let idx = 0;
+    $("#checks").innerHTML = l.tiers.map((t, n) =>
+      `<fieldset class="tier${got > n ? " full" : ""}"><legend>${starHtml(n + 1, n + 1)} ${TIERS[n]}</legend>${t.items.map(item => {
+        const k = idx++;
+        return `<label class="check"><input type="checkbox" data-k="${k}" ${c[k] ? "checked" : ""}><span>${esc(item)}</span></label>`;
+      }).join("")}</fieldset>`).join("");
+    $("#checks").querySelectorAll("input").forEach(box => box.addEventListener("change", () => {
+      state.checks = state.checks || {};
+      const arr = state.checks[l.id] || [];
+      arr[+box.dataset.k] = box.checked;
+      state.checks[l.id] = arr;
+      const s = projectStars(l);
+      if (s) state.stars[l.id] = s; else delete state.stars[l.id];
+      PQ.save(state);
+      renderHeader();
+      renderChecks();
+    }));
+  }
+
   function openLevel(level) {
+    if (level.project) return openProject(level);
     runId++;
     const introDone = !level.primm || (state.intro || {})[level.id] || (state.stars[level.id] || 0) > 0;
     view = { level, stage: state.stage || 1, hints: 0, pool: null, prog: [], gapVals: [], mode: introDone ? "work" : "intro", istep: 1, pick: null };
@@ -297,7 +388,7 @@ ${CONSOLE_HTML}
     }
   }
 
-  function makeEditor(parent, text, onChange) {
+  function makeEditor(parent, text, onChange, minHeight) {
       parent.innerHTML = `<div class="editor"><div class="gutter" id="gutter"></div>
 <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" aria-label="Programmcode"></textarea></div>`;
       const ta = $("#code"), gutter = $("#gutter");
@@ -306,7 +397,7 @@ ${CONSOLE_HTML}
         const n = ta.value.split("\n").length;
         gutter.textContent = Array.from({ length: n }, (_, i) => i + 1).join("\n");
         gutter.scrollTop = ta.scrollTop;
-        ta.style.height = Math.max(180, n * 24 + 28) + "px";
+        ta.style.height = Math.max(minHeight || 180, n * 24 + 28) + "px";
       };
       ta.addEventListener("input", () => { if (onChange) onChange(ta.value); sync(); });
       ta.addEventListener("scroll", () => { gutter.scrollTop = ta.scrollTop; });
@@ -335,7 +426,7 @@ ${CONSOLE_HTML}
   function getCode() {
     const l = view.level;
     let code;
-    if (view.mode === "intro") code = $("#code").value;
+    if (view.mode === "intro" || view.mode === "project") code = $("#code").value;
     else if (view.stage === 1) code = view.prog.map(x => x.t).join("\n");
     else if (view.stage === 2) { let g = 0; code = l.gaps.replace(/\{\{\d+\}\}/g, () => view.gapVals[g++] || ""); }
     else code = $("#code").value;
@@ -392,7 +483,7 @@ ${CONSOLE_HTML}
     if (res.error) feedback("retry", Engine.errorHtml(Engine.explain(res.error, code)));
     else {
       if (!res.output) conNote("Dein Programm ist durchgelaufen, hat aber nichts ausgegeben.");
-      feedback("info", `<p>Dein Programm läuft ohne Fehler. Mit <b>Prüfen</b> siehst du, ob es die Aufgabe löst.</p>`);
+      if (view.mode !== "project") feedback("info", `<p>Dein Programm läuft ohne Fehler. Mit <b>Prüfen</b> siehst du, ob es die Aufgabe löst.</p>`);
     }
   }
 

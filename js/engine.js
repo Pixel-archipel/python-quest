@@ -7,11 +7,13 @@ const Engine = (() => {
   async function run(code, opts = {}) {
     let out = "";
     let starved = false;
+    let burst = 0;
     const queue = opts.inputs ? opts.inputs.slice() : null;
     Sk.configure({
       output: t => {
         out += t;
-        if (out.length > 8000) throw new Error("ZuVielAusgabe");
+        burst += t.length;
+        if (burst > 8000) throw new Error("ZuVielAusgabe");
         if (opts.onOutput) opts.onOutput(t);
       },
       inputfun: prompt => {
@@ -19,7 +21,8 @@ const Engine = (() => {
           if (!queue.length) { starved = true; throw new Error("KeineEingabeMehr"); }
           return queue.shift();
         }
-        return opts.onInput(prompt).then(v => { Sk.execStart = new Date(); return v; });
+        // Nach jeder Eingabe beginnen Zeitlimit und Ausgabelimit neu, damit lange Spiele möglich sind.
+        return opts.onInput(prompt).then(v => { Sk.execStart = new Date(); burst = 0; return v; });
       },
       inputfunTakesPrompt: true,
       __future__: Sk.python3,
@@ -100,7 +103,10 @@ const Engine = (() => {
       const m = original.match(/name '([^']+)'/);
       const name = m ? m[1] : "";
       title = "Python kennt dieses Wort nicht";
-      if (name && name !== name.toLowerCase() && ["print", "input", "int", "str", "range", "len"].includes(name.toLowerCase())) {
+      if (name === "random") {
+        title = "Der Zufall ist noch nicht geladen";
+        text = "Schreibe ganz oben in dein Programm die Zeile <code>import random</code>.";
+      } else if (name && name !== name.toLowerCase() && ["print", "input", "int", "str", "range", "len"].includes(name.toLowerCase())) {
         text = `Python unterscheidet große und kleine Buchstaben. Schreibe <code>${esc(name.toLowerCase())}</code> komplett klein.`;
       } else {
         text = `Das Wort <code>${esc(name)}</code> ist Python unbekannt. Soll es ein Text sein, dann fehlen die Anführungszeichen. Soll es eine Variable sein, dann prüfe die Schreibweise und ob du sie weiter oben angelegt hast.`;
@@ -173,10 +179,14 @@ const Engine = (() => {
     let firstOut = "";
     for (let i = 0; i < level.tests.length; i++) {
       const t = level.tests[i];
-      const r = await run(code, { inputs: t.inputs || [] });
-      if (i === 0) firstOut = r.output;
       const tested = t.inputs && t.inputs.length
         ? `<p class="orig">Getestet mit den Eingaben: ${t.inputs.map(esc).join(", ")}</p>` : "";
+      // Zufallsprogramme: mehrfach starten und jede Ausgabe mit t.validate prüfen
+      const rounds = t.validate ? (t.repeat || 20) : 1;
+      const seen = new Set();
+      for (let k = 0; k < rounds; k++) {
+      const r = await run(code, { inputs: t.inputs || [] });
+      if (i === 0 && k === 0) firstOut = r.output;
       if (r.starved) {
         return { ok: false, output: firstOut, html: `<p>Dein Programm fragt öfter nach einer Eingabe, als die Aufgabe verlangt. Zähle deine <code>input</code> Befehle. Bei einer Schleife: Prüfe, ob sie rechtzeitig aufhört.</p>${tested}` };
       }
@@ -184,10 +194,20 @@ const Engine = (() => {
       if (r.left > 0) {
         return { ok: false, output: firstOut, html: `<p>Dein Programm fragt zu selten nach einer Eingabe. Die Aufgabe verlangt ${t.inputs.length === 1 ? "eine Eingabe" : t.inputs.length + " Eingaben"}.</p>` };
       }
+      if (t.validate) {
+        const msg = t.validate(toLines(r.output), t.inputs || []);
+        if (msg) return { ok: false, output: r.output, html: `<p>${msg}</p>${tested}` };
+        seen.add(r.output);
+        continue;
+      }
       const diff = compare(r.output, t.expect);
       if (diff) {
         const second = i > 0 ? `<p>Mit den ersten Eingaben klappt dein Programm, mit anderen noch nicht. Prüfe, ob es bei jeder Eingabe das Richtige tut.</p>` : "";
         return { ok: false, output: firstOut, html: second + diff + tested };
+      }
+      }
+      if (t.vary && seen.size < 2) {
+        return { ok: false, output: firstOut, html: `<p>Dein Programm gibt bei jedem Start genau dasselbe aus. Benutzt du wirklich den Zufall?</p>` };
       }
     }
     for (const m of level.mustNot || []) if (m.re.test(src)) return { ok: false, output: firstOut, html: `<p>${m.msg}</p>` };

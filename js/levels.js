@@ -1667,5 +1667,280 @@ print("Gesamtpreis:", gesamt, "Euro")`,
       }
     ]
   },
-  { id: "w6", title: "Welt 6: Dein Projekt", sub: "Ein eigenes kleines Spiel", levels: [] }
+  {
+    id: "w6",
+    title: "Welt 6: Dein Projekt",
+    sub: "Zufall und ein eigenes kleines Spiel",
+    levels: [
+      {
+        id: "w6l1",
+        title: "Der Zufall",
+        primm: {
+          predict: {
+            options: [`Du würfelst eine 3`, `Du würfelst eine wurf`, `Das lässt sich nicht sicher sagen. Es kommt jedes Mal eine andere Zahl von 1 bis 6.`],
+            correct: 2,
+            explain: `<code>random.randint(1, 6)</code> liefert eine zufällige ganze Zahl von 1 bis 6. Zum ersten Mal kannst du die Ausgabe eines Programms nicht genau vorhersagen.`
+          },
+          investigate: {
+            task: `<p>Führe das Programm mehrmals hintereinander aus und beobachte die Zahlen.</p>`,
+            question: `Kann auch eine 6 herauskommen?`,
+            options: [`Nein. Wie bei range ist die zweite Zahl nicht mehr dabei.`, `Ja. Bei randint gehören beide Grenzen dazu.`],
+            correct: 1,
+            explain: `Das ist ein Unterschied zu <code>range()</code>. Bei <code>randint(1, 6)</code> sind sowohl die 1 als auch die 6 möglich. Falls du noch keine 6 gesehen hast, war das nur Zufall.`
+          }
+        },
+        intro: `<p>Spiele brauchen Zufall. Python bringt dafür ein Zusatzpaket mit. Es heißt <code>random</code> und muss ganz oben im Programm mit <code>import random</code> geladen werden.</p>
+<p>Danach liefert <code>random.randint(1, 6)</code> eine zufällige ganze Zahl von 1 bis 6.</p>`,
+        example: `import random
+
+wurf = random.randint(1, 6)
+print("Du würfelst eine", wurf)`,
+        task: `<p>Dein Programm würfelt mit zwei Würfeln. Es gibt beide Würfe und ihre Summe aus, so wie im Beispiel unten.</p>
+<p>Die Zahlen sind bei jedem Start anders. Geprüft wird, ob sie zu einem Würfel passen und ob die Summe stimmt.</p>`,
+        sample: `Würfel 1: 4
+Würfel 2: 2
+Summe: 6`,
+        tests: [{
+          inputs: [], repeat: 20, vary: true,
+          validate(lines) {
+            if (lines.length !== 3) return `Dein Programm soll genau drei Zeilen ausgeben. Im Moment sind es ${lines.length}.`;
+            const forms = [/^Würfel 1: (-?\d+)$/, /^Würfel 2: (-?\d+)$/, /^Summe: (-?\d+)$/];
+            const v = lines.map((l, i) => (l.match(forms[i]) || [])[1]);
+            if (v.includes(undefined)) return `Die Ausgabe hat noch nicht die richtige Form. Vergleiche sie genau mit dem Beispiel.`;
+            const [a, b, s] = v.map(Number);
+            if (a < 1 || a > 6 || b < 1 || b > 6) return `Ein Würfel hat nur die Zahlen 1 bis 6. Dein Programm hat ${a} und ${b} gewürfelt.`;
+            if (a + b !== s) return `Die Summe stimmt nicht. Gewürfelt wurden ${a} und ${b}, als Summe steht dort ${s}.`;
+            return null;
+          }
+        }],
+        must: [{ re: /random\.randint\s*\(/, msg: `Die Ausgabe passt. Würfle aber mit <code>random.randint()</code>.` }],
+        hints: [
+          `Die erste Zeile lautet <code>import random</code>. Ohne sie kennt Python den Zufall nicht.`,
+          `Du brauchst zwei Variablen, eine für jeden Würfel. Jede bekommt ihren eigenen Aufruf von <code>random.randint(1, 6)</code>.`,
+          `Die letzte Zeile lautet <code>print("Summe:", a + b)</code>, wenn deine Würfel <code>a</code> und <code>b</code> heißen.`
+        ],
+        parsons: {
+          lines: [`import random`, `a = random.randint(1, 6)`, `b = random.randint(1, 6)`, `print("Würfel 1:", a)`, `print("Würfel 2:", b)`, `print("Summe:", a + b)`],
+          distractors: [`print("Summe:", a * b)`]
+        },
+        gaps: `{{6}} random
+a = random.{{7}}(1, 6)
+b = random.randint({{1}}, {{1}})
+print("Würfel 1:", a)
+print("Würfel 2:", b)
+print("Summe:", {{5}})`,
+        starter: `import random
+`
+      },
+      {
+        id: "w6l2",
+        title: "Zufällig auswählen",
+        primm: {
+          predict: {
+            options: [`Die Kugel sagt: Ja`, `Die Kugel sagt: Ja Nein Vielleicht`, `Das lässt sich nicht sicher sagen. Es kommt eine der drei Antworten.`],
+            correct: 2,
+            explain: `<code>random.choice()</code> zieht einen zufälligen Eintrag aus einer Liste. Welcher es wird, entscheidet sich bei jedem Start neu.`
+          },
+          investigate: {
+            task: `<p>Ergänze in der Liste eine vierte Antwort, zum Beispiel <code>"Frag später"</code>. Führe das Programm dann mehrmals aus.</p>`,
+            question: `Musstest du die Zeile mit random.choice ändern?`,
+            options: [`Ja`, `Nein`],
+            correct: 1,
+            explain: `<code>random.choice()</code> passt sich der Länge der Liste an, genau wie die <code>for</code> Schleife. Neue Möglichkeiten trägst du einfach in die Liste ein.`
+          }
+        },
+        intro: `<p>Oft soll der Zufall keine Zahl liefern, sondern etwas aus einer Auswahl. Dafür gibt es <code>random.choice()</code>.</p>
+<p>In die Klammern kommt eine Liste. Zurück kommt einer ihrer Einträge.</p>`,
+        example: `import random
+
+antworten = ["Ja", "Nein", "Vielleicht"]
+print("Die Kugel sagt:", random.choice(antworten))`,
+        task: `<p>Baue den Anfang von Schere, Stein, Papier. Dein Programm fragt nach deiner Wahl. Der Computer zieht zufällig eine der drei Möglichkeiten aus einer Liste.</p>
+<p>Dann gibt das Programm beide Züge aus, so wie im Beispiel unten. Wer gewinnt, kommt erst im Projekt dran.</p>`,
+        sample: `Deine Wahl: <b>Stein</b>
+Du: Stein
+Computer: Papier`,
+        tests: [{
+          inputs: ["Stein"], repeat: 20, vary: true,
+          validate(lines, inputs) {
+            if (lines.length !== 2) return `Dein Programm soll genau zwei Zeilen ausgeben. Im Moment sind es ${lines.length}.`;
+            if (lines[0] !== "Du: " + inputs[0]) return `Die erste Zeile soll deinen eigenen Zug zeigen, also Du: ${inputs[0]}`;
+            if (!/^Computer: (Schere|Stein|Papier)$/.test(lines[1])) return `Die zweite Zeile soll den Zug des Computers zeigen. Erlaubt sind Schere, Stein und Papier. Dein Programm schreibt: ${Engine.esc(lines[1])}`;
+            return null;
+          }
+        }],
+        must: [{ re: /random\.choice\s*\(/, msg: `Die Ausgabe passt. Lass den Computer aber mit <code>random.choice()</code> ziehen.` }],
+        hints: [
+          `Lege zuerst eine Liste mit den drei Möglichkeiten an. Achte auf die Schreibweise: Schere, Stein, Papier.`,
+          `Der Zug des Computers lautet <code>computer = random.choice(moeglich)</code>, wenn deine Liste <code>moeglich</code> heißt.`,
+          `Am Ende stehen zwei Ausgaben: <code>print("Du:", du)</code> und <code>print("Computer:", computer)</code>`
+        ],
+        parsons: {
+          lines: [`import random`, `moeglich = ["Schere", "Stein", "Papier"]`, `du = input("Deine Wahl: ")`, `computer = random.choice(moeglich)`, `print("Du:", du)`, `print("Computer:", computer)`],
+          distractors: [`computer = random.choice("moeglich")`]
+        },
+        gaps: `import random
+moeglich = ["Schere", "Stein", "Papier"]
+du = input("Deine Wahl: ")
+computer = random.{{6}}({{8}})
+print("Du:", {{3}})
+print("Computer:", computer)`,
+        starter: `import random
+`
+      },
+      {
+        id: "w6p1",
+        project: true,
+        title: "Zahlenraten",
+        intro: `<p>Der Computer denkt sich eine geheime Zahl aus, und du musst sie erraten. Anders als in Welt 3 ist die Zahl jetzt bei jedem Spiel eine andere.</p>
+<p>Du entscheidest selbst, wie das Spiel aussieht und was es alles kann. Die Checkliste zeigt dir, was möglich ist.</p>`,
+        sample: `Ich denke mir eine Zahl von 1 bis 20.
+Dein Tipp: <b>10</b>
+Zu klein.
+Dein Tipp: <b>15</b>
+Zu groß.
+Dein Tipp: <b>13</b>
+Richtig!`,
+        tiers: [
+          { items: [`Der Computer denkt sich eine zufällige Zahl aus.`, `Ich kann so lange raten, bis ich die Zahl habe.`, `Nach jedem falschen Tipp sagt das Programm, ob er zu klein oder zu groß war.`] },
+          { items: [`Das Programm zählt meine Versuche und nennt sie am Ende.`, `Ich kann am Anfang wählen, wie groß der Zahlenbereich ist.`] },
+          { items: [`Nach einer Runde kann ich entscheiden, ob ich noch einmal spiele.`, `Mein Programm enthält mindestens eine eigene Funktion.`] }
+        ],
+        hints: [
+          `Die geheime Zahl bekommst du mit <code>geheim = random.randint(1, 20)</code>.`,
+          `Das Raten funktioniert wie im Bosslevel von Welt 3: eine <code>while</code> Schleife, die läuft, solange der Tipp nicht stimmt.`,
+          `Für noch eine Runde kannst du das ganze Spiel in eine Funktion packen und sie in einer Schleife aufrufen, solange die Antwort ja lautet.`
+        ],
+        scaffold: `import random
+
+geheim = random.randint(1, 20)
+print("Ich denke mir eine Zahl von 1 bis 20.")
+
+# 1. Frage nach dem ersten Tipp
+# 2. Wiederhole, solange der Tipp falsch ist:
+#    Sage, ob der Tipp zu klein oder zu groß war
+#    Frage nach dem nächsten Tipp
+# 3. Gratuliere am Ende
+`
+      },
+      {
+        id: "w6p2",
+        project: true,
+        title: "Schere, Stein, Papier",
+        intro: `<p>Du spielst gegen den Computer. Beide wählen Schere, Stein oder Papier, und das Programm entscheidet, wer gewinnt.</p>
+<p>Den Anfang hast du im Level davor schon gebaut. Jetzt fehlt die Auswertung.</p>`,
+        sample: `Schere, Stein oder Papier? <b>Stein</b>
+Computer: Schere
+Du gewinnst!`,
+        tiers: [
+          { items: [`Ich wähle meinen Zug, und der Computer wählt zufällig.`, `Das Programm erkennt ein Unentschieden.`, `Das Programm sagt richtig, wer gewonnen hat.`] },
+          { items: [`Es werden mehrere Runden gespielt, und das Programm zählt die Punkte.`, `Bei einer ungültigen Eingabe fragt das Programm noch einmal.`] },
+          { items: [`Das Spiel endet, sobald jemand drei Punkte hat.`, `Eine eigene Funktion entscheidet, wer die Runde gewinnt.`] }
+        ],
+        hints: [
+          `Prüfe zuerst das Unentschieden: <code>if du == computer:</code>`,
+          `Du gewinnst in genau drei Fällen. Jeder Fall verbindet zwei Vergleiche mit <code>and</code>, und die drei Fälle verbindest du mit <code>or</code> oder mit <code>elif</code>.`,
+          `Ob eine Eingabe gültig ist, prüfst du mit <code>in</code> und deiner Liste der Möglichkeiten.`
+        ],
+        scaffold: `import random
+
+moeglich = ["Schere", "Stein", "Papier"]
+du = input("Schere, Stein oder Papier? ")
+computer = random.choice(moeglich)
+print("Computer:", computer)
+
+# 1. Prüfe zuerst, ob es unentschieden steht
+# 2. Prüfe dann die drei Fälle, in denen du gewinnst:
+#    Schere schlägt Papier, Stein schlägt Schere, Papier schlägt Stein
+# 3. In allen anderen Fällen gewinnt der Computer
+`
+      },
+      {
+        id: "w6p3",
+        project: true,
+        title: "Das große Quiz",
+        intro: `<p>Du baust ein Quiz zu einem Thema deiner Wahl: Fußball, Musik, Tiere, Erdkunde oder etwas ganz anderes.</p>
+<p>Anders als in Welt 2 stehen die Fragen jetzt in einer Liste. So kannst du beliebig viele Fragen ergänzen, ohne das Programm umzubauen.</p>`,
+        sample: `Wie viele Beine hat eine Spinne? <b>8</b>
+Richtig!
+Wie heißt die Hauptstadt von Italien? <b>Paris</b>
+Leider falsch. Richtig wäre: Rom
+Du hast 1 von 2 Punkten.`,
+        tiers: [
+          { items: [`Mein Quiz stellt mindestens drei Fragen.`, `Nach jeder Antwort sagt das Programm, ob sie richtig war.`, `Am Ende nennt das Programm die Punktzahl.`] },
+          { items: [`Fragen und Antworten stehen in Listen, und eine Schleife geht sie durch.`, `Bei einer falschen Antwort zeigt das Programm die richtige Lösung.`] },
+          { items: [`Die Fragen kommen in zufälliger Reihenfolge.`, `Eine eigene Funktion gibt je nach Punktzahl eine passende Bewertung zurück.`] }
+        ],
+        hints: [
+          `Lege zwei Listen an, eine mit Fragen und eine mit Antworten. Frage und Antwort stehen jeweils auf demselben Platz.`,
+          `Mit <code>for i in range(len(fragen)):</code> bekommst du die Platznummern. Dann gehören <code>fragen[i]</code> und <code>antworten[i]</code> zusammen.`,
+          `Für eine zufällige Reihenfolge kannst du eine Liste mit Platznummern anlegen und sie mit <code>random.shuffle(liste)</code> mischen.`
+        ],
+        scaffold: `fragen = ["Wie viele Beine hat eine Spinne?", "Wie heißt die Hauptstadt von Italien?"]
+antworten = ["8", "Rom"]
+punkte = 0
+
+# 1. Gehe mit einer Schleife alle Fragen durch
+#    Tipp: for i in range(len(fragen)):
+# 2. Stelle die Frage fragen[i] und vergleiche die Eingabe mit antworten[i]
+# 3. Zähle die Punkte und gib sie am Ende aus
+`
+      },
+      {
+        id: "w6p4",
+        project: true,
+        title: "Das Würfelduell",
+        intro: `<p>Du würfelst gegen den Computer. Wer die höhere Zahl hat, gewinnt die Runde.</p>
+<p>Das Grundspiel ist schnell gebaut. Spannend wird es mit mehreren Runden und eigenen Regeln.</p>`,
+        sample: `Du würfelst: 5
+Computer würfelt: 3
+Du gewinnst die Runde!`,
+        tiers: [
+          { items: [`Mein Programm würfelt für mich und für den Computer.`, `Es sagt richtig, wer die Runde gewinnt.`, `Es erkennt ein Unentschieden.`] },
+          { items: [`Es werden fünf Runden gespielt, und das Programm zählt die Punkte.`, `Am Ende nennt das Programm die Siegerin oder den Sieger des ganzen Spiels.`] },
+          { items: [`Ich habe eine eigene Regel erfunden und eingebaut, zum Beispiel doppelte Punkte bei einer 6.`, `Eine eigene Funktion würfelt und gibt das Ergebnis zurück.`] }
+        ],
+        hints: [
+          `Jeder Wurf ist ein eigener Aufruf von <code>random.randint(1, 6)</code>.`,
+          `Für fünf Runden setzt du das Würfeln und Vergleichen in eine <code>for</code> Schleife mit <code>range(5)</code>. Die Punktezähler stehen davor.`,
+          `Die Zeile <code>input("Drücke Enter zum Würfeln")</code> hält das Spiel vor jedem Wurf an. Das macht es spannender.`
+        ],
+        scaffold: `import random
+
+du = random.randint(1, 6)
+computer = random.randint(1, 6)
+print("Du würfelst:", du)
+print("Computer würfelt:", computer)
+
+# 1. Vergleiche die beiden Würfe
+# 2. Gib aus, wer gewonnen hat. Denke auch an das Unentschieden
+`
+      },
+      {
+        id: "w6p5",
+        project: true,
+        title: "Deine eigene Idee",
+        intro: `<p>Hier baust du, was du willst: ein Textabenteuer, einen Rechentrainer, einen Namensgenerator, ein Orakel oder etwas, an das noch niemand gedacht hat.</p>
+<p>Schreibe dir zuerst in drei Sätzen auf, was dein Programm können soll. Baue dann die einfachste Fassung, die läuft, und erweitere sie Schritt für Schritt.</p>`,
+        sample: ``,
+        tiers: [
+          { items: [`Mein Programm läuft ohne Fehlermeldung.`, `Es arbeitet mit Eingaben und Ausgaben.`, `Es trifft mindestens eine Entscheidung mit if.`] },
+          { items: [`Es benutzt mindestens eine Schleife.`, `Es benutzt eine Liste oder den Zufall.`] },
+          { items: [`Es enthält mindestens eine eigene Funktion.`, `Jemand anderes hat mein Programm ausprobiert und verstanden, was zu tun ist.`] }
+        ],
+        hints: [
+          `Fang klein an. Ein Programm, das wenig kann und läuft, ist besser als ein großes, das nicht startet.`,
+          `Führe dein Programm nach jeder neuen Zeile aus. So findest du Fehler sofort.`,
+          `Schau in deine alten Level. Fast alles, was du brauchst, hast du dort schon einmal gebaut.`
+        ],
+        scaffold: `# Mein Projekt:
+#
+# Das soll mein Programm können:
+# 1.
+# 2.
+# 3.
+`
+      }
+    ]
+  }
 ];
