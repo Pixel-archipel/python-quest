@@ -91,6 +91,7 @@
   <h1>${esc(l.title)}</h1>
   <div class="prose">${l.intro}</div>
   ${l.sample ? `<h3>So könnte es aussehen</h3><pre class="sample">${l.sample}</pre>` : ""}
+  <div class="fb info"><p><b>Wichtig:</b> Dein Code bleibt nur in diesem Browser. Speichere ihn am Ende jeder Stunde mit <b>Als Datei speichern</b>. Mit <b>Datei öffnen</b> machst du an jedem Gerät weiter.</p></div>
   <h3>Checkliste</h3>
   <p class="note">Hake ab, was dein Programm wirklich kann. Deine Sterne richten sich nach den Haken. Für den nächsten Stern muss eine Stufe vollständig sein.</p>
   <div id="checks"></div>
@@ -104,11 +105,50 @@
     <button id="copy" class="btn" type="button">Code kopieren</button>
     <button id="hint" class="btn ghost" type="button"></button>
   </div>
+  <div class="savebar">
+    <span id="savestate" class="savestate"></span>
+    <button id="save" class="btn" type="button">⤓ Als Datei speichern</button>
+    <button id="load" class="btn ghost" type="button">Datei öffnen</button>
+    <input id="file" type="file" accept=".py,.txt,text/plain" hidden>
+  </div>
   ${CONSOLE_HTML}
   <ol id="hints" class="hints"></ol>
 </section></div>`;
     $("#back").addEventListener("click", showMap);
-    const ta = makeEditor($("#edwrap"), state.drafts[l.id] || "", v => { state.drafts[l.id] = v; PQ.save(state); }, 380);
+    const ta = makeEditor($("#edwrap"), state.drafts[l.id] || "", v => { state.drafts[l.id] = v; PQ.save(state); updateSaveState(); }, 380);
+    $("#save").addEventListener("click", () => {
+      const fname = (l.title.replace(/[,]/g, "").replace(/\s+/g, "_") + "_" + state.name.replace(/[^\p{L}\p{N}]+/gu, "_")).replace(/_+$/, "") + ".py";
+      const blob = new Blob([ta.value], { type: "text/x-python;charset=utf-8" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = fname;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      state.fileSaved = state.fileSaved || {};
+      state.fileSaved[l.id] = ta.value;
+      PQ.save(state);
+      updateSaveState();
+    });
+    $("#load").addEventListener("click", () => $("#file").click());
+    $("#file").addEventListener("change", async e => {
+      const f = e.target.files[0];
+      e.target.value = "";
+      if (!f) return;
+      if (f.size > 200000) { feedback("retry", `<p>Diese Datei ist zu groß für ein Python-Projekt.</p>`); return; }
+      const text = (await f.text()).replace(/\r\n/g, "\n");
+      if (ta.value.trim() && ta.value !== text &&
+        !window.confirm("Dein bisheriger Code wird durch den Inhalt der Datei ersetzt. Fortfahren?")) return;
+      ta.value = text;
+      ta.dispatchEvent(new Event("input"));
+      state.fileSaved = state.fileSaved || {};
+      state.fileSaved[l.id] = text;
+      PQ.save(state);
+      updateSaveState();
+      feedback("info", `<p>Die Datei <b>${esc(f.name)}</b> ist geladen.</p>`);
+    });
+    updateSaveState();
     $("#run").addEventListener("click", doRun);
     $("#hint").addEventListener("click", showHint);
     $("#scaffold").addEventListener("click", () => {
@@ -126,6 +166,17 @@
     renderChecks();
     updateHintButton();
     window.scrollTo(0, 0);
+  }
+
+  function updateSaveState() {
+    const el = $("#savestate");
+    if (!el) return;
+    const l = view.level;
+    const cur = state.drafts[l.id] || "";
+    const saved = (state.fileSaved || {})[l.id];
+    if (!cur.trim()) { el.className = "savestate"; el.textContent = "Noch kein Code"; }
+    else if (saved === cur) { el.className = "savestate ok"; el.textContent = "✓ Als Datei gesichert"; }
+    else { el.className = "savestate warn"; el.textContent = "Nicht als Datei gesichert"; }
   }
 
   function renderChecks() {
