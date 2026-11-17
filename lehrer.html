@@ -14,7 +14,7 @@
   </header>
   <main class="teacher">
     <h1>Fortschrittscode prüfen</h1>
-    <p class="muted">Name und Code eingeben. Der Code gilt nur zusammen mit dem Namen, den die Schülerin oder der Schüler in Python Quest eingetragen hat. Nichts davon verlässt diesen Rechner.</p>
+    <p class="muted">Name und Code eingeben. Einen kopierten Code wie „Mika: K7M2-P9“ kannst du auch komplett in das Codefeld einfügen, der Name wird dann übernommen. Der Code gilt nur zusammen mit dem Namen, den die Schülerin oder der Schüler in Python Quest eingetragen hat. Nichts davon verlässt diesen Rechner.</p>
     <form id="f" class="row">
       <input id="n" placeholder="Name" autocomplete="off">
       <input id="c" placeholder="Fortschrittscode" autocomplete="off">
@@ -30,7 +30,10 @@
     document.getElementById("f").addEventListener("submit", e => {
       e.preventDefault();
       const out = document.getElementById("out");
-      const stars = PQ.readCode(document.getElementById("c").value, document.getElementById("n").value);
+      const raw = document.getElementById("c").value;
+      // Eingefügt als "Name: CODE"? Dann den Namen gleich übernehmen.
+      if (raw.includes(":") && !document.getElementById("n").value.trim()) document.getElementById("n").value = raw.split(":")[0].trim();
+      const stars = PQ.readCode(raw, document.getElementById("n").value);
       if (!stars) {
         out.innerHTML = `<div class="fb retry"><p>Code und Name passen nicht zusammen. Entweder ein Tippfehler oder der Code gehört zu einem anderen Namen.</p></div>`;
         return;

@@ -631,6 +631,7 @@ ${first ? `<p class="note"><a href="#" id="restore">Ich habe schon einen Fortsch
 <p>Name: <b>${esc(state.name)}</b></p>
 <p class="bigcode">${esc(PQ.makeCode(state))}</p>
 <p>Zeige oder schicke diesen Code deiner Lehrkraft. Schreib ihn dir auch auf. Damit machst du an einem anderen Gerät dort weiter, wo du aufgehört hast.</p>
+<p style="text-align:center"><button class="btn" type="button" id="c-copy">Code kopieren</button></p>
 <div class="drow">
 <button class="btn ghost" type="button" id="c-restore">Code eingeben</button>
 <button class="btn ghost" type="button" id="c-name">Namen ändern</button>
@@ -638,6 +639,12 @@ ${first ? `<p class="note"><a href="#" id="restore">Ich habe schon einen Fortsch
 <button class="btn primary" value="ok">Schließen</button></div>
 <p class="note">Abmelden löscht den Stand auf diesem Gerät. Schreib dir vorher deinen Code auf.</p>
 </form>`;
+    $("#c-copy").addEventListener("click", async () => {
+      const b = $("#c-copy");
+      try { await navigator.clipboard.writeText(state.name + ": " + PQ.makeCode(state)); b.textContent = "Kopiert ✓"; }
+      catch (e) { b.textContent = "Kopieren nicht möglich, bitte abschreiben"; }
+      setTimeout(() => { b.textContent = "Code kopieren"; }, 2500);
+    });
     $("#c-restore").addEventListener("click", askRestore);
     $("#c-name").addEventListener("click", () => askName(false));
     $("#c-out").addEventListener("click", () => {

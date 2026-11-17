@@ -23,9 +23,13 @@ const PQ = (() => {
   }
   const normName = n => String(n).trim().toLowerCase().replace(/\s+/g, " ");
 
+  // Je Level 2 Bit für 0 bis 3 Sterne. Nicht gespielte Level am Ende fallen weg,
+  // deshalb wächst der Code mit dem Fortschritt: am Anfang 4, bei allen 37 Einträgen 17 Zeichen.
+  const CHECK = 2;
   function payload(stars) {
     let bits = allLevels().map(l => (stars[l.id] || 0).toString(2).padStart(2, "0")).join("");
-    while (bits.length % 5) bits += "0";
+    bits = bits.replace(/0+$/, "");
+    while (bits.length % 5 || !bits.length) bits += "0";
     let out = "";
     for (let i = 0; i < bits.length; i += 5) out += ALPHA[parseInt(bits.slice(i, i + 5), 2)];
     return out;
@@ -33,19 +37,20 @@ const PQ = (() => {
   function checksum(p, name) {
     let h = hash(p + "|" + normName(name) + "|" + SALT);
     let out = "";
-    for (let i = 0; i < 4; i++) { out += ALPHA[h & 31]; h >>>= 5; }
+    for (let i = 0; i < CHECK; i++) { out += ALPHA[h & 31]; h >>>= 5; }
     return out;
   }
   function makeCode(state) {
     const p = payload(state.stars);
-    return p + "-" + checksum(p, state.name);
+    return (p + checksum(p, state.name)).match(/.{1,4}/g).join("-");
   }
   // Gibt {levelId: Sterne} zurück oder null, wenn Code und Name nicht zusammenpassen.
   function readCode(code, name) {
-    const clean = String(code).toUpperCase().replace(/[^A-Z2-9]/g, "");
-    if (clean.length < 5) return null;
-    const p = clean.slice(0, -4);
-    if (checksum(p, name) !== clean.slice(-4)) return null;
+    // Kopierte Codes haben die Form "Name: CODE". Dann zählt nur der Teil nach dem Doppelpunkt.
+    const clean = String(code).split(":").pop().toUpperCase().replace(/[^A-Z2-9]/g, "");
+    if (clean.length < CHECK + 1) return null;
+    const p = clean.slice(0, -CHECK);
+    if (checksum(p, name) !== clean.slice(-CHECK)) return null;
     let bits = "";
     for (const ch of p) {
       const v = ALPHA.indexOf(ch);
